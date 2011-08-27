@@ -1,0 +1,19 @@
+#!/sbin/ext/busybox sh
+
+echo $0 $* >> /dev/null
+
+if [ -f /sbin/recovery-is-running ];
+then
+    if (echo "$*" | grep -q -i "/datadata") || (echo "$*" | grep -q -i "/dbdata"); then
+        busybox umount /datadata >> /dev/null 2>&1
+        echo busybox umount /datadata >> /dev/null
+        busybox umount /dbdata >> /dev/null 2>&1
+        echo busybox umount /dbdata >> /dev/null
+    else
+	busybox umount $*
+	echo busybox umount $* >> /dev/null
+    fi;
+else
+    busybox umount $*
+    echo busybox umount $* >> /dev/null
+fi;
