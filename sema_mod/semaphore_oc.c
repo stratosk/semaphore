@@ -1,10 +1,6 @@
 #include <linux/init.h>
 #include <linux/module.h>
 
-<<<<<<< HEAD
-
-=======
->>>>>>> semaphore/master
 extern void s5pv210_change_high_1200(void);
 extern void s5pv210_change_high_1000(void);
 
