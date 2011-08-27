@@ -188,7 +188,6 @@ mDNIe_data_type mDNIe_Outdoor_Mode[]=
 	END_SEQ, 0x0000,
 
 };
-#if 0 //Disable for SpeedMod Gingerbread kernel for now
 //////////////////////////////////////////////////////////
 // SpeedMod COLD
 //////////////////////////////////////////////////////////
@@ -566,7 +565,6 @@ mDNIe_data_type WARM_mDNIe_Outdoor_Mode[]=
 	END_SEQ, 0x0000,
 
 };
-#endif //End of disable for SpeedMod Gingerbread
 #if defined(CONFIG_ARIES_LATONA)
 
 mDNIe_data_type mDNIe_Gallery[]= 

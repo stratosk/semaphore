@@ -1,7 +1,7 @@
 /*
  * Automatically generated C config: don't edit
  * Linux kernel version: 2.6.35.7
- * Sat Aug  6 19:13:40 2011
+ * Sat Aug 27 10:25:17 2011
  */
 #define AUTOCONF_INCLUDED
 #define CONFIG_SCSI_DMA 1
@@ -421,7 +421,7 @@
 #define CONFIG_GENERIC_HARDIRQS_NO__DO_IRQ 1
 #define CONFIG_ARM_VIC 1
 #define CONFIG_FB_S3C_LCD_INIT 1
-#define CONFIG_CPU_FREQ_STAT 1
+#define CONFIG_CPU_FREQ_STAT_MODULE 1
 #define CONFIG_VIDEO_CAPTURE_DRIVERS 1
 #define CONFIG_ARCH_S5PV210 1
 #define CONFIG_DEBUG_SPINLOCK 1
@@ -522,7 +522,7 @@
 #define CONFIG_FAT_DEFAULT_IOCHARSET "iso8859-1"
 #define CONFIG_FRAME_WARN 1024
 #define CONFIG_GENERIC_HWEIGHT 1
-#define CONFIG_INITRAMFS_SOURCE "/tmp/cf_init_jvr"
+#define CONFIG_INITRAMFS_SOURCE "/GT-I9000_Kernel/Kernel/sema_jvr"
 #define CONFIG_CGROUPS 1
 #define CONFIG_MMC 1
 #define CONFIG_KERNEL_DEBUG_SEC 1

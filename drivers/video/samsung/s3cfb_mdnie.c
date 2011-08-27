@@ -323,6 +323,44 @@ EXPORT_SYMBOL(mDNIe_txtbuf_to_parsing_for_lightsensor);
 
 #endif
 
+//sysfs support for SpeedMod
+void update_color_temp();
+unsigned short color_temp = 0;
+
+static ssize_t color_temp_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+       return sprintf(buf,"%u\n",color_temp);
+}
+
+static ssize_t color_temp_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
+{
+       unsigned short state;
+       if (sscanf(buf, "%hu", &state) == 1)
+       {
+               color_temp = state;
+               //do this after value is changed
+               update_color_temp();
+       }
+       return size;
+}
+
+static DEVICE_ATTR(color_temp, S_IRUGO | S_IWUGO , color_temp_show, color_temp_store);
+
+static struct attribute *speedmodk_mdnie_attributes[] = {
+               &dev_attr_color_temp.attr,
+               NULL
+};
+
+static struct attribute_group speedmodk_mdnie_group = {
+               .attrs  = speedmodk_mdnie_attributes,
+};
+
+static struct miscdevice speedmodk_mdnie_device = {
+               .minor = MISC_DYNAMIC_MINOR,
+               .name = "speedmodk_mdnie",
+};
+// sysfs support for SpeedMod end
+
 
 int s3c_mdnie_hw_init(void)
 {
@@ -351,6 +389,17 @@ int s3c_mdnie_hw_init(void)
 	}
 
 	printk("MDNIE  INIT SUCCESS Addr : 0x%p\n",s3c_mdnie_base);
+
+       
+       // register speedmod sysfs
+       misc_register(&speedmodk_mdnie_device);
+       if (sysfs_create_group(&speedmodk_mdnie_device.this_device->kobj, &speedmodk_mdnie_group) < 0)
+       {
+               printk("%s sysfs_create_group fail\n", __FUNCTION__);
+               pr_err("Failed to create sysfs group for device (%s)!\n", speedmodk_mdnie_device.name);
+       }
+
+
 
 	return 0;
 
@@ -454,27 +503,39 @@ void mDNIe_Set_Mode(Lcd_mDNIe_UI mode, u8 mDNIe_Outdoor_OnOff)
 		switch(mode)
 		{
 			case mDNIe_UI_MODE:
-				mDNIe_Mode_Change(mDNIe_UI);
+                               if (color_temp == 0) mDNIe_Mode_Change(mDNIe_UI);
+                               else if (color_temp == 1) mDNIe_Mode_Change(COLD_mDNIe_UI);
+                               else mDNIe_Mode_Change(WARM_mDNIe_UI);
 			break;
 
 			case mDNIe_VIDEO_MODE:
-				mDNIe_Mode_Change(mDNIe_Outdoor_Mode);
+				if (color_temp == 0) mDNIe_Mode_Change(mDNIe_Outdoor_Mode);
+                                else if (color_temp == 1) mDNIe_Mode_Change(COLD_mDNIe_Outdoor_Mode);
+                                else mDNIe_Mode_Change(WARM_mDNIe_Outdoor_Mode);			
 			break;
 
 			case mDNIe_VIDEO_WARM_MODE:
-				mDNIe_Mode_Change(mDNIe_Video_WO_Mode);
+				if (color_temp == 0) mDNIe_Mode_Change(mDNIe_Video_WO_Mode);
+                                else if (color_temp == 1) mDNIe_Mode_Change(COLD_mDNIe_Video_WO_Mode);
+                                else mDNIe_Mode_Change(WARM_mDNIe_Video_WO_Mode);
 			break;
 
 			case mDNIe_VIDEO_COLD_MODE:
-				mDNIe_Mode_Change(mDNIe_Video_CO_Mode);
+				if (color_temp == 0) mDNIe_Mode_Change(mDNIe_Video_WO_Mode);
+				else if (color_temp == 1) mDNIe_Mode_Change(COLD_mDNIe_Video_WO_Mode);
+                                else mDNIe_Mode_Change(WARM_mDNIe_Video_WO_Mode);
 			break;
 			
 			case mDNIe_CAMERA_MODE:
-				mDNIe_Mode_Change(mDNIe_Camera_Outdoor_Mode);
+			        if (color_temp == 0) mDNIe_Mode_Change(mDNIe_Camera_Outdoor_Mode);
+                                else if (color_temp == 1) mDNIe_Mode_Change(COLD_mDNIe_Camera_Outdoor_Mode);
+                                else mDNIe_Mode_Change(WARM_mDNIe_Camera_Outdoor_Mode);
 			break;
 
 			case mDNIe_NAVI:
-				mDNIe_Mode_Change(mDNIe_Outdoor_Mode);
+                                if (color_temp == 0) mDNIe_Mode_Change(mDNIe_Outdoor_Mode);
+                                else if (color_temp == 1) mDNIe_Mode_Change(COLD_mDNIe_Outdoor_Mode);
+                                else mDNIe_Mode_Change(WARM_mDNIe_Outdoor_Mode);			
 			break;
 #if defined(CONFIG_ARIES_LATONA)
 			case mDNIe_GALLERY:
@@ -495,27 +556,39 @@ void mDNIe_Set_Mode(Lcd_mDNIe_UI mode, u8 mDNIe_Outdoor_OnOff)
 		switch(mode)
 		{
 			case mDNIe_UI_MODE:
-				mDNIe_Mode_Change(mDNIe_UI);
+				if (color_temp == 0) mDNIe_Mode_Change(mDNIe_UI);
+                                else if (color_temp == 1) mDNIe_Mode_Change(COLD_mDNIe_UI);
+                                else mDNIe_Mode_Change(WARM_mDNIe_UI);
 			break;
 
 			case mDNIe_VIDEO_MODE:
-				mDNIe_Mode_Change(mDNIe_Video);
+				if (color_temp == 0) mDNIe_Mode_Change(mDNIe_Video);
+                                else if (color_temp == 1) mDNIe_Mode_Change(COLD_mDNIe_Video);
+                                else mDNIe_Mode_Change(WARM_mDNIe_Video);
 			break;
 
 			case mDNIe_VIDEO_WARM_MODE:
-				mDNIe_Mode_Change(mDNIe_Video_Warm);
+                                if (color_temp == 0) mDNIe_Mode_Change(mDNIe_Video_Warm);
+                                else if (color_temp == 1) mDNIe_Mode_Change(COLD_mDNIe_Video_Warm);
+                                else mDNIe_Mode_Change(WARM_mDNIe_Video_Warm);
 			break;
 
 			case mDNIe_VIDEO_COLD_MODE:
-				mDNIe_Mode_Change(mDNIe_Video_Cold);
+                                if (color_temp == 0) mDNIe_Mode_Change(mDNIe_Video_Cold);
+                                else if (color_temp == 1) mDNIe_Mode_Change(COLD_mDNIe_Video_Cold);
+                                else mDNIe_Mode_Change(WARM_mDNIe_Video_Cold);				
 			break;
-			
+				
 			case mDNIe_CAMERA_MODE:
-				mDNIe_Mode_Change(mDNIe_Camera);
+			        if (color_temp == 0) mDNIe_Mode_Change(mDNIe_Video_Cold);
+                                else if (color_temp == 1) mDNIe_Mode_Change(COLD_mDNIe_Video_Cold);
+                                else mDNIe_Mode_Change(WARM_mDNIe_Video_Cold);
 			break;
 
 			case mDNIe_NAVI:
-				mDNIe_Mode_Change(mDNIe_UI);
+			        if (color_temp == 0) mDNIe_Mode_Change(mDNIe_UI);
+                                else if (color_temp == 1) mDNIe_Mode_Change(COLD_mDNIe_UI);
+                                else mDNIe_Mode_Change(WARM_mDNIe_UI);
 			break;
 #if defined(CONFIG_ARIES_LATONA)
 			case mDNIe_GALLERY:
@@ -1201,7 +1274,7 @@ int mDNIe_txtbuf_to_parsing2(void)
 	pos = 0;
 	memset(dp, 0, l);
     printk("== Before vfs_read ======\n");
-	ret = vfs_read(filp, (char __user *)dp, l, &pos);   // P1_LSJ : DE08 : ?�기??죽음 
+	ret = vfs_read(filp, (char __user *)dp, l, &pos);   // P1_LSJ : DE08 : ?\AC기??죽음 
     printk("== After vfs_read ======\n");
 
 	if(ret != l) 
@@ -1428,6 +1501,17 @@ int s3c_mdnie_stop(void)
 
 	return 0;
 
+}
+
+void update_color_temp()
+{
+       if (color_temp == 0) { //Neutral
+               mDNIe_Mode_Change(mDNIe_UI);
+       } else if (color_temp == 1) { //Cold
+               mDNIe_Mode_Change(COLD_mDNIe_UI);
+       } else { //Warm
+               mDNIe_Mode_Change(WARM_mDNIe_UI);
+       }                       
 }
 
 

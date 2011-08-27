@@ -43,6 +43,8 @@ modules.builtin
 /System.map
 /Module.markers
 /Module.symvers
+/sema_buils
+/copy_ko
 
 #
 # git files that we don't want to ignore even it they are dot-files

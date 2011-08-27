@@ -84,11 +84,6 @@ static const char longname[] = "Gadget Android";
 #  define PRODUCT_ID		0x0001
 #endif /* CONFIG_USB_ANDROID_SAMSUNG_COMPOSITE */
 
-#ifdef CONFIG_USB_ANDROID_SAMSUNG_COMPOSITE
-u16 askonstatus=0;
-u16 inaskonstatus=0;
-#endif
-
 
 struct android_dev {
 	struct usb_composite_dev *cdev;
@@ -552,7 +547,6 @@ void android_enable_function(struct usb_function *f, int enable)
 				dev->current_usb_mode = USBSTATUS_SAMSUNG_KIES;
 		}
 		if (!strcmp(f->name, "adb")) {
-			askonstatus=0;
 			ret = set_product(dev, USBSTATUS_ADB);
 			if (ret != -1)
 				dev->debugging_usb_mode = 1; /* save debugging status */
@@ -666,7 +660,6 @@ void android_enable_function(struct usb_function *f, int enable)
  * Written by SoonYong,Cho  (Fri 5, Nov 2010)
  */
 #ifdef CONFIG_USB_ANDROID_SAMSUNG_COMPOSITE
-extern void fsa9480_usb_cb(bool attached);
 static void samsung_enable_function(int mode)
 {
 	struct android_dev *dev = _android_dev;
@@ -674,13 +667,6 @@ static void samsung_enable_function(int mode)
 	int ret = -1;
 	CSY_DBG_ESS("enable mode=0x%x\n", mode);
 
-	if(askonstatus == 0xabcd){
-		if(mode == USBSTATUS_ASKON)
-			return;
-		inaskonstatus=1;
-		askonstatus=0;			
-		fsa9480_usb_cb(1);			
-		}
 
 	switch(mode) {
 		case USBSTATUS_UMS:
@@ -707,7 +693,6 @@ static void samsung_enable_function(int mode)
 #endif			
 		case USBSTATUS_ASKON: /* do not save usb mode */
 			CSY_DBG_ESS("mode = USBSTATUS_ASKON (0x%x) Don't change usb mode\n", mode);
-			askonstatus=0xabcd;
 			return;
 	}
 
@@ -851,27 +836,6 @@ static ssize_t UsbMenuSel_switch_store(struct device *dev, struct device_attribu
 
 /* soonyong.cho : attribute of sysfs for usb menu switch */
 static DEVICE_ATTR(UsbMenuSel, S_IRGRP |S_IWGRP | S_IRUSR | S_IWUSR, UsbMenuSel_switch_show, UsbMenuSel_switch_store);
-
-
-static ssize_t AskOnStatus_switch_show(struct device *dev, struct device_attribute *attr, char *buf)
-{
-	if(inaskonstatus){
-		inaskonstatus=0;
-		return sprintf(buf, "%s\n", "Blocking");
-		}
-	else{
-		return sprintf(buf, "%s\n", "NonBlocking");
-		}
-}
-
-
-static ssize_t AskOnStatus_switch_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
-{		
-	return size;
-}
-
-static DEVICE_ATTR(AskOnStatus, S_IRUGO |S_IWUGO | S_IRUSR | S_IWUSR, AskOnStatus_switch_show, AskOnStatus_switch_store);
-
 #endif /* CONFIG_USB_ANDROID_SAMSUNG_COMPOSITE */
 
 
@@ -940,9 +904,6 @@ static int android_probe(struct platform_device *pdev)
  *		  But, Best guide is that usb switch doesn't initialize before usb driver.
  *		  If you want initialize, please implement it.
  */
-
-	if (device_create_file(&pdev->dev, &dev_attr_AskOnStatus) < 0)
-		pr_err("Failed to create device file(%s)!\n", dev_attr_AskOnStatus.attr.name);	
 #endif
 	return usb_composite_register(&android_usb_driver);
 }
