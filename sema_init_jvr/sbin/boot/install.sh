@@ -1,4 +1,4 @@
-if /sbin/ext/busybox [ ! -f /system/cfroot/release-80-JVR-s1 ]; 
+if /sbin/ext/busybox [ ! -f /system/cfroot/release-80-JVR-s1- ]; 
 then
 # Remount system RW
     /sbin/ext/busybox mount -o remount,rw /system
