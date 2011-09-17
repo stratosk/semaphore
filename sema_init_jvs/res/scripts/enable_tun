@@ -1,0 +1,3 @@
+#!/system/bin/sh
+
+insmod /lib/modules/tun.ko

@@ -1,0 +1,43 @@
+#!/system/bin/sh
+
+insmod /lib/modules/nf_conntrack.ko
+insmod /lib/modules/nf_conntrack_ftp.ko
+insmod /lib/modules/nf_conntrack_irc.ko
+insmod /lib/modules/nf_conntrack_sip.ko
+insmod /lib/modules/nf_defrag_ipv4.ko
+insmod /lib/modules/nf_conntrack_ipv4.ko
+insmod /lib/modules/nf_nat.ko
+insmod /lib/modules/nf_nat_ftp.ko
+insmod /lib/modules/nf_nat_irc.ko
+insmod /lib/modules/nf_nat_sip.ko
+insmod /lib/modules/nfnetlink.ko
+insmod /lib/modules/nfnetlink_log.ko
+insmod /lib/modules/nf_conntrack_netlink.ko
+
+insmod /lib/modules/x_tables.ko
+insmod /lib/modules/xt_tcpudp.ko
+insmod /lib/modules/xt_policy.ko
+insmod /lib/modules/xt_mark.ko
+insmod /lib/modules/xt_TCPMSS.ko
+insmod /lib/modules/ip_tables.ko
+insmod /lib/modules/ipt_LOG.ko
+insmod /lib/modules/ipt_REJECT.ko
+#insmod /lib/modules/ipt_ULOG.ko
+insmod /lib/modules/iptable_filter.ko
+insmod /lib/modules/iptable_mangle.ko
+insmod /lib/modules/iptable_nat.ko
+insmod /lib/modules/ipt_MASQUERADE.ko
+insmod /lib/modules/xt_conntrack.ko
+insmod /lib/modules/xt_state.ko
+insmod /lib/modules/xt_NFLOG.ko
+
+insmod /lib/modules/xt_owner.ko
+insmod /lib/modules/ipt_REDIRECT.ko
+insmod /lib/modules/xt_multiport.ko
+
+insmod /lib/modules/ip6_tables.ko
+insmod /lib/modules/ip6t_LOG.ko
+insmod /lib/modules/ip6t_REJECT.ko
+insmod /lib/modules/ip6t_ipv6header.ko
+insmod /lib/modules/nf_conntrack_ipv6.ko
+

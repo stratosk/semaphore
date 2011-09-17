@@ -1,0 +1,3 @@
+#!/system/bin/sh
+
+echo 2 > /sys/devices/virtual/misc/speedmodk_mdnie/color_temp
