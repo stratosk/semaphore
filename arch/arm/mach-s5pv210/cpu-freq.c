@@ -67,7 +67,7 @@ extern int exp_UV_mV[5];
 unsigned int freq_uv_table[5][3] = {
 	//frequency, stock voltage, current voltage
 	{1000000, 1275, 1275},
-	{800000, 1200, 1250},
+	{800000, 1200, 1200},
 	{400000, 1050, 1050},
 	{200000, 950, 950},
 	{100000, 950, 950}
@@ -862,15 +862,15 @@ void s5pv210_change_high_1200(void)
 	oc_freq = 1200;
 
         freq_uv_table[0][0] = oc_freq * 1000;
-        freq_uv_table[0][1] = 1300;
-        freq_uv_table[0][2] = 1300;
+        freq_uv_table[0][1] = 1325;
+        freq_uv_table[0][2] = 1325;
 
         freq_table[L0].frequency = oc_freq * 1000;
 
         clk_info[L0].fclk       = oc_freq * 1000;
         clk_info[L0].armclk      = oc_freq * 1000;
 
-        dvs_conf[L0].arm_volt   = 1300000;
+        dvs_conf[L0].arm_volt   = 1325000;
 
         clkdiv_val[0][1] = 5;
         clkdiv_val[0][2] = 5;
