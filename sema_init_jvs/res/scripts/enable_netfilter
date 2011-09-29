@@ -1,4 +1,6 @@
 #!/system/bin/sh
+#Netfilter
+#Load netfilter modules (tethering, firewall)
 
 insmod /lib/modules/nf_conntrack.ko
 insmod /lib/modules/nf_conntrack_ftp.ko

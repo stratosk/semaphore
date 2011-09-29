@@ -1,0 +1,5 @@
+#!/system/bin/sh
+#TUN
+#Unload tun module
+
+rmmod tun

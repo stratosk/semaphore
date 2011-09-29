@@ -1,4 +1,6 @@
 #!/system/bin/sh
+#Logger
+#Enable logger (must reboot)
 
 if /sbin/ext/busybox [ ! -f /data/local/logger.ko ];
 then
