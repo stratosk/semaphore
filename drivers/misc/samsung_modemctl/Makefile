@@ -1,4 +1,2 @@
-obj-y +=	modemctl/
-obj-y +=	onedram/
-obj-y +=	svnet/
-
+all:
+	cp built-in.o.gcc4.4 built-in.o
