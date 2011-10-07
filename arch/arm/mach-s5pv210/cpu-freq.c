@@ -21,6 +21,7 @@
 #include <linux/suspend.h>
 #include <linux/regulator/consumer.h>
 #include <linux/gpio.h>
+#include <linux/miscdevice.h>
 #include <asm/system.h>
 
 #include <mach/map.h>
@@ -85,7 +86,7 @@ static unsigned int g_dvfslockval[DVFS_LOCK_TOKEN_NUM];
 //static DEFINE_MUTEX(dvfs_high_lock);
 #endif
 
-const unsigned long arm_volt_max = 1350000;
+const unsigned long arm_volt_max = 1375000;
 const unsigned long int_volt_max = 1250000;
 
 static struct s5pv210_dvs_conf dvs_conf[] = {
@@ -187,6 +188,49 @@ static struct s3c_freq clk_info[] = {
 		.pclk_dsys  = 83375,
 	},
 };
+
+unsigned short oc = 0;
+
+static ssize_t oc_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%u\n", oc);
+}
+
+static ssize_t oc_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
+{
+	unsigned short state;
+	if (sscanf(buf, "%hu", &state) == 1)
+	{
+	  	oc = state;
+		if (oc == 0) {
+			s5pv210_change_high_1000();
+		} else if (oc == 1) {
+			s5pv210_change_high_1100();
+		} else if (oc == 2) {
+			s5pv210_change_high_1200();
+		} else {
+			s5pv210_change_high_1300();
+		}
+	}
+ 	return size;
+}
+ 
+static DEVICE_ATTR(oc, S_IRUGO | S_IWUGO , oc_show, oc_store);
+ 
+static struct attribute *semaphore_cpufreq_attributes[] = {
+	&dev_attr_oc.attr,
+	NULL
+};
+
+static struct attribute_group semaphore_cpufreq_group = {
+	.attrs  = semaphore_cpufreq_attributes,
+};
+
+static struct miscdevice semaphore_cpufreq_device = {
+	.minor = MISC_DYNAMIC_MINOR,
+	.name = "semaphore_cpufreq",
+};
+
 
 static int s5pv210_cpufreq_verify_speed(struct cpufreq_policy *policy)
 {
@@ -295,8 +339,12 @@ static void s5pv210_cpufreq_clksrcs_MPLL2APLL(unsigned int index,
 		/* APLL FOUT becomes 1000 Mhz */
 		if (oc_freq == 1000)
 			__raw_writel(PLL45XX_APLL_VAL_1000, S5P_APLL_CON);
-		else
+		else if (oc_freq == 1100)
+			__raw_writel(PLL45XX_APLL_VAL_1100, S5P_APLL_CON);
+		else if (oc_freq == 1200)
 			__raw_writel(PLL45XX_APLL_VAL_1200, S5P_APLL_CON);
+		else
+			__raw_writel(PLL45XX_APLL_VAL_1300, S5P_APLL_CON);
 	}
 	else
 		/* APLL FOUT becomes 800 Mhz */
@@ -852,8 +900,46 @@ finish:
 #endif
 	register_pm_notifier(&s5pv210_cpufreq_notifier);
 
+	misc_register(&semaphore_cpufreq_device);
+	if (sysfs_create_group(&semaphore_cpufreq_device.this_device->kobj, &semaphore_cpufreq_group) < 0)
+	{
+		printk("%s sysfs_create_group fail\n", __FUNCTION__);
+		pr_err("Failed to create sysfs group for device (%s)!\n", semaphore_cpufreq_device.name);
+	}
+
 	return cpufreq_register_driver(&s5pv210_cpufreq_driver);
 }
+
+void s5pv210_change_high_1300(void)
+{
+	struct cpufreq_policy *policy;
+        
+	oc_freq = 1300;
+
+        freq_uv_table[0][0] = oc_freq * 1000;
+        freq_uv_table[0][1] = 1375;
+        freq_uv_table[0][2] = 1375;
+
+        freq_table[L0].frequency = oc_freq * 1000;
+
+        clk_info[L0].fclk       = oc_freq * 1000;
+        clk_info[L0].armclk      = oc_freq * 1000;
+
+        dvs_conf[L0].arm_volt   = 1375000;
+
+        clkdiv_val[0][1] = 5;
+        clkdiv_val[0][2] = 5;
+
+	
+	policy = cpufreq_cpu_get(0);
+	if (policy == NULL)
+		return;
+
+	policy->max = 1300000;
+
+	policy->cpuinfo.max_freq = 1300000;
+}
+EXPORT_SYMBOL(s5pv210_change_high_1300);
 
 void s5pv210_change_high_1200(void)
 {
@@ -885,6 +971,37 @@ void s5pv210_change_high_1200(void)
 	policy->cpuinfo.max_freq = 1200000;
 }
 EXPORT_SYMBOL(s5pv210_change_high_1200);
+
+void s5pv210_change_high_1100(void)
+{
+	struct cpufreq_policy *policy;
+        
+	oc_freq = 1120;
+
+        freq_uv_table[0][0] = oc_freq * 1000;
+        freq_uv_table[0][1] = 1300;
+        freq_uv_table[0][2] = 1300;
+
+        freq_table[L0].frequency = oc_freq * 1000;
+
+        clk_info[L0].fclk       = oc_freq * 1000;
+        clk_info[L0].armclk      = oc_freq * 1000;
+
+        dvs_conf[L0].arm_volt   = 1300000;
+
+        clkdiv_val[0][1] = 4;
+        clkdiv_val[0][2] = 4;
+
+	
+	policy = cpufreq_cpu_get(0);
+	if (policy == NULL)
+		return;
+
+	policy->max = 1120000;
+
+	policy->cpuinfo.max_freq = 1120000;
+}
+EXPORT_SYMBOL(s5pv210_change_high_1100);
 
 void s5pv210_change_high_1000(void)
 {
