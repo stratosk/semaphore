@@ -45,7 +45,7 @@
 #include <linux/android_alarm.h>
 #include "s5pc110_battery.h"
 
-#define BAT_POLLING_INTERVAL	10000
+#define BAT_POLLING_INTERVAL	60000
 #define ADC_TOTAL_COUNT		10
 #define ADC_DATA_ARR_SIZE	6
 
