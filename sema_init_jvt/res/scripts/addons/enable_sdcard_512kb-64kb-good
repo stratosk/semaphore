@@ -1,0 +1,11 @@
+#!/system/bin/sh
+#SD-Card read ahead
+
+echo "disabled" > /data/property/persist.tweak.sdcard
+
+echo "512" > /sys/devices/virtual/bdi/179:0/read_ahead_kb
+echo "512" > /sys/devices/virtual/bdi/179:8/read_ahead_kb
+
+echo "64" > /sys/devices/virtual/bdi/138:9/read_ahead_kb
+echo "64" > /sys/devices/virtual/bdi/138:10/read_ahead_kb
+echo "64" > /sys/devices/virtual/bdi/138:11/read_ahead_kb
