@@ -64,8 +64,8 @@ UTS_TRUNCATE="cut -b -$UTS_LEN"
   echo \#define UTS_VERSION \"`echo $UTS_VERSION | $UTS_TRUNCATE`\"
 
   echo \#define LINUX_COMPILE_TIME \"`date +%T`\"
-  echo \#define LINUX_COMPILE_BY \"`whoami`\"
-  echo \#define LINUX_COMPILE_HOST \"`hostname | $UTS_TRUNCATE`\"
+  echo \#define LINUX_COMPILE_BY \"stratosk\"
+  echo \#define LINUX_COMPILE_HOST \"semaphore.gr\"
 
   domain=`dnsdomainname 2> /dev/null`
   if [ -z "$domain" ]; then
@@ -77,8 +77,8 @@ UTS_TRUNCATE="cut -b -$UTS_LEN"
   else
     echo \#define LINUX_COMPILE_DOMAIN
   fi
-
-  echo \#define LINUX_COMPILER \"`$CC -v 2>&1 | tail -n 1`\"
+lgcc="Linaro GCC 4.6-2011.09-1"
+  echo \#define LINUX_COMPILER \"`echo $lgcc`\"
 ) > .tmpcompile
 
 # Only replace the real compile.h if the new one is different,

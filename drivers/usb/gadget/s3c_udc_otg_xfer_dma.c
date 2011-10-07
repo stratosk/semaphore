@@ -22,7 +22,8 @@
  */
 
 #define GINTMSK_INIT	(INT_OUT_EP|INT_IN_EP|INT_RESUME|INT_ENUMDONE|INT_RESET|INT_SUSPEND)
-#define DOEPMSK_INIT	(CTRL_OUT_EP_SETUP_PHASE_DONE|AHB_ERROR|TRANSFER_DONE)
+#define DOEPMSK_INIT	(CTRL_OUT_EP_SETUP_PHASE_DONE | AHB_ERROR| BACK2BACK_SETUP_RECEIVED |\
+				TRANSFER_DONE)
 #define DIEPMSK_INIT	(NON_ISO_IN_EP_TIMEOUT|AHB_ERROR|TRANSFER_DONE)
 #define GAHBCFG_INIT	(PTXFE_HALF|NPTXFE_HALF|MODE_DMA|BURST_INCR4|GBL_INT_UNMASK)
 
@@ -382,6 +383,15 @@ static void process_ep_out_intr(struct s3c_udc *dev)
 			if (ep_num == 0) {
 				if (ep_intr_status & CTRL_OUT_EP_SETUP_PHASE_DONE) {
 					DEBUG_OUT_EP("\tSETUP packet(transaction) arrived\n");
+					if (likely((ep_intr_status & BACK2BACK_SETUP_RECEIVED)==0)) {
+						if(((__raw_readl(S3C_UDC_OTG_DOEPTSIZ(0))>>29)&0x3) < 2) {
+							/* Got more than 1 setup packets */
+							/* Get the last valid setup packet (next setup pkt)*/
+							s3c_udc_pre_setup();
+							printk(KERN_DEBUG "b2bs\n");
+							continue;
+						}
+					}
 					s3c_handle_ep0(dev);
 				}
 
