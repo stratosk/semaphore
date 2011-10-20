@@ -68,7 +68,7 @@ then
 # Semaphore Script Manager
     toolbox rm /system/app/Semaphore.apk
     toolbox rm /data/dalvik-cache/*semaphore.apk*
-    toolbox rm /data/app/hm.semaphore*.apk
+#    toolbox rm /data/app/hm.semaphore*.apk
 
     toolbox cat /res/misc/Semaphore.apk > /system/app/Semaphore.apk
     toolbox chown 0.0 /system/app/Semaphore.apk
