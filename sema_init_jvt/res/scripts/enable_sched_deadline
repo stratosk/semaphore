@@ -1,6 +1,7 @@
 #!/system/bin/sh
+#Schedulers
+#Change I/O scheduler
 #Deadline
-#Load deadline I/O scheduler module
 
 insmod /lib/modules/deadline-iosched.ko
 

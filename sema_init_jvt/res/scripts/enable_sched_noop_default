@@ -1,0 +1,9 @@
+#!/system/bin/sh
+#Schedulers
+#Change I/O scheduler
+#No-op
+
+echo noop > /sys/class/block/mmcblk0/queue/scheduler
+echo noop > /sys/class/block/mmcblk1/queue/scheduler
+echo noop > /sys/class/block/stl10/queue/scheduler
+echo noop > /sys/class/block/stl9/queue/scheduler
