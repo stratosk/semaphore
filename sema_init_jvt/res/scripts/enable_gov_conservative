@@ -1,6 +1,7 @@
 #!/system/bin/sh
+#Governors
+#Change CPU governor
 #Conservative
-#Load conservative governor module
 
 insmod /lib/modules/cpufreq_conservative.ko
 
