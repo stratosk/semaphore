@@ -1,4 +1,6 @@
-obj-m += semaphore_oc.o
+obj-m += semaphore_oc_1100.o
+obj-m += semaphore_oc_1200.o
+obj-m += semaphore_oc_1300.o
 
 all:
-	make -C /GT-I9000_Kernel/Kernel M=/GT-I9000_Kernel/Kernel/sema_mod modules
+	make -C /home/stratosk/semaphore M=/home/stratosk/semaphore/sema_mod modules
