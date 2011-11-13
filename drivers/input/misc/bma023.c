@@ -339,9 +339,13 @@ static int bma023_measure(struct bma023_data *bma023,
 	/* filter_filter(bma023, raw_data, filtered_data); */
 	/* filter_stabilizer(bma023, filtered_data, stabled_data); */
 	filter_stabilizer(bma023, raw_data, stabled_data);
-
+#if defined(CONFIG_GALAXY_I897)
+        accel->x = stabled_data[1] * -1;
+        accel->y = stabled_data[0];
+#else
 	accel->x = stabled_data[0];
 	accel->y = stabled_data[1];
+#endif
 	accel->z = stabled_data[2];
 
 	return err;
