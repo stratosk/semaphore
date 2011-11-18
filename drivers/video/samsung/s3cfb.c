@@ -39,7 +39,9 @@
 #endif
 #include "s3cfb.h"
 
-#if defined(CONFIG_ARIES_EUR)
+#if defined(CONFIG_GALAXY_I897)
+#include "logo_rgb24_wvga_portrait_I896.h"
+#elif defined(CONFIG_ARIES_EUR)
 #include "logo_rgb24_wvga_portrait.h"
 #elif defined(CONFIG_ARIES_NTT)
 #include "logo_rgb24_wvga_portrait_docomo.h"
