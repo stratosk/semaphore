@@ -80,6 +80,7 @@ Codec Output Path BIT
 #define VOICECALL_HP		(0x01 << 3)
 #define VOICECALL_HP_NO_MIC	(0x01 << 4)
 #define VOICECALL_BT		(0x01 << 5)
+#define VOICECALL_EXTRA_DOCK    (0x01 << 6)
 
 #define RECORDING_MAIN		(0x01 << 1)
 #define RECORDING_HP		(0x01 << 2)
@@ -218,6 +219,7 @@ void wm8994_set_voicecall_headset(struct snd_soc_codec *codec);
 void wm8994_set_voicecall_headphone(struct snd_soc_codec *codec);
 void wm8994_set_voicecall_speaker(struct snd_soc_codec *codec);
 void wm8994_set_voicecall_bluetooth(struct snd_soc_codec *codec);
+void wm8994_set_voicecall_extra_dock_speaker(struct snd_soc_codec *codec);
 void wm8994_disable_fmradio_path(struct snd_soc_codec *codec,
 	enum fmradio_path path);
 void wm8994_set_fmradio_input_active(struct snd_soc_codec *codec, int on);

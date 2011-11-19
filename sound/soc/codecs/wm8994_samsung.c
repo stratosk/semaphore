@@ -131,7 +131,8 @@ select_route universal_wm8994_playback_paths[] = {
 select_route universal_wm8994_voicecall_paths[] = {
 	wm8994_disable_path, wm8994_set_voicecall_receiver,
 	wm8994_set_voicecall_speaker, wm8994_set_voicecall_headset,
-	wm8994_set_voicecall_headphone, wm8994_set_voicecall_bluetooth
+	wm8994_set_voicecall_headphone, wm8994_set_voicecall_bluetooth,
+	wm8994_set_voicecall_extra_dock_speaker
 };
 
 select_mic_route universal_wm8994_mic_paths[] = {
@@ -292,7 +293,8 @@ static const char *playback_path[] = {
 	"EXTRA_DOCK_SPEAKER"
 };
 static const char *voicecall_path[] = {
-	"OFF", "RCV", "SPK", "HP", "HP_NO_MIC", "BT"
+	"OFF", "RCV", "SPK", "HP", "HP_NO_MIC", "BT",
+	"EXTRA_DOCK_SPEAKER"	
 };
 static const char *mic_path[] = {
 	"Main Mic", "Hands Free Mic", "BT Sco Mic", "MIC OFF"
@@ -611,6 +613,8 @@ static int wm8994_get_voice_path(struct snd_kcontrol *kcontrol,
 	return 0;
 }
 
+extern short int get_dock_status(void);
+
 static int wm8994_set_voice_path(struct snd_kcontrol *kcontrol,
 				 struct snd_ctl_elem_value *ucontrol)
 {
@@ -625,6 +629,12 @@ static int wm8994_set_voice_path(struct snd_kcontrol *kcontrol,
 		return -ENODEV;
 	}
 
+	int dock_state = get_dock_status();
+	if(dock_state > 0 && path_num == SPK)
+		path_num = EXTRA_DOCK_SPEAKER;
+	else if(dock_state > 0 && path_num == RCV)
+		path_num = SPK; //use speaker when dock is attached and path is to handset
+
 	switch (path_num) {
 	case OFF:
 		DEBUG_LOG("Switching off output path\n");
@@ -636,6 +646,10 @@ static int wm8994_set_voice_path(struct snd_kcontrol *kcontrol,
 	case BT:
 		DEBUG_LOG("routing  voice path to %s\n", mc->texts[path_num]);
 		break;
+        case EXTRA_DOCK_SPEAKER:
+    		path_num -= 1;
+                DEBUG_LOG("routing  voice path to %s\n", mc->texts[path_num]);
+                break;
 	default:
 		DEBUG_LOG_ERR("path[%d] does not exists!\n", path_num);
 		return -ENODEV;

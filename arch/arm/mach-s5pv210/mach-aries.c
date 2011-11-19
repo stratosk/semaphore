@@ -2363,6 +2363,12 @@ static struct switch_dev switch_dock = {
 	.name = "dock",
 };
 
+unsigned int get_dock_status(void)
+{
+	return switch_get_state(&switch_dock);
+}
+EXPORT_SYMBOL(get_dock_status);
+
 static void fsa9480_deskdock_cb(bool attached)
 {
 	struct usb_gadget *gadget = platform_get_drvdata(&s3c_device_usbgadget);
