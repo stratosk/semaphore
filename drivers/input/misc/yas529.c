@@ -91,7 +91,11 @@ static const int8_t YAS529_TRANSFORMATION[][9] = {
 	{ 0, -1, 0, -1, 0, 0, 0, 0, -1 },
 	{ 1, 0, 0, 0, -1, 0, 0, 0, -1 },
 	{ 0, 1, 0, 1, 0, 0, 0, 0, -1 },
+#if defined(CONFIG_GALAXY_I897) //Position one has issues but replicating position one at position 7 works...
+        { 0, 1, 0, -1, 0, 0, 0, 0, 1 },
+#else
 	{ -1, 0, 0, 0, 1, 0, 0, 0, -1 },
+#endif
 };
 
 static const int supported_data_interval[] = {10, 20, 60, 200, 1000};

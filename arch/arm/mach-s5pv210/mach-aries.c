@@ -312,14 +312,15 @@ static struct s3cfb_lcd s6e63m0 = {
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_ADSP (6144 * SZ_1K)
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_TEXTSTREAM (3000 * SZ_1K)
 #else	// optimized settings, 19th Jan.2011
+#ifdef CONFIG_S5P_BIGMEM
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC0 (5000 * SZ_1K)
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC1 (5000 * SZ_1K)
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC2 (5000 * SZ_1K)
+#else
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC0 (11264 * SZ_1K) //(12288 * SZ_1K)
-#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC1 (6144 * SZ_1K) //(9900 * SZ_1K)
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC1 (5000 * SZ_1K) //(9900 * SZ_1K)
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC2 (11264 * SZ_1K) //(12288 * SZ_1K)
-
-//#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC0 (5000 * SZ_1K)
-//#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC1 (5000 * SZ_1K)
-//#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC2 (5000 * SZ_1K)
-
+#endif
 #if !defined(CONFIG_ARIES_NTT)   
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_MFC0 (32768 * SZ_1K)
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_MFC1 (32768 * SZ_1K)
@@ -327,12 +328,12 @@ static struct s3cfb_lcd s6e63m0 = {
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_MFC0 (36864 * SZ_1K)
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_MFC1 (36864 * SZ_1K)
 #endif
-#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMD (3072 * SZ_1K) //(3000 * SZ_1K)
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMD (3000 * SZ_1K) //(3000 * SZ_1K)
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_JPEG (4096 * SZ_1K) //(5012 * SZ_1K)
-#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_PMEM (5632 * SZ_1K) //(5550 * SZ_1K)
-#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_GPU1 (3584 * SZ_1K) //(3300 * SZ_1K)
-#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_ADSP (1536 * SZ_1K) //(1500 * SZ_1K)
-#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_TEXTSTREAM (3072 * SZ_1K) //(3000 * SZ_1K)
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_PMEM (2048 * SZ_1K) //(5550 * SZ_1K)
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_GPU1 (3300 * SZ_1K) //(3300 * SZ_1K)
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_ADSP (1500 * SZ_1K) //(1500 * SZ_1K)
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_TEXTSTREAM (3000 * SZ_1K) //(3000 * SZ_1K)
 
 //#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMD (3000 * SZ_1K)
 //#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_JPEG (5012 * SZ_1K)
@@ -1210,6 +1211,12 @@ static void touch_keypad_onoff(int onoff)
 }
 
 static const int touch_keypad_code[] = {
+#if defined(CONFIG_GALAXY_I897)
+  	KEY_MENU,
+  	KEY_HOME,
+  	KEY_BACK,
+  	KEY_SEARCH,
+#else
 	KEY_MENU,
 	KEY_BACK,
 	KEY_LEFT,
@@ -1218,6 +1225,7 @@ static const int touch_keypad_code[] = {
 	KEY_DOWN,
 	KEY_CAMERA,
 	KEY_SEND,	
+#endif
 };
 
 static struct touchkey_platform_data touchkey_data = {
@@ -1292,7 +1300,12 @@ static bool jack_mic_bias;
 static void set_shared_mic_bias(void)
 {
 #if !defined(CONFIG_ARIES_NTT)
+#if defined(CONFIG_GALAXY_I897)
+        gpio_set_value(GPIO_MICBIAS_EN, wm8994_mic_bias);
+        gpio_set_value(GPIO_EAR_MICBIAS_EN, jack_mic_bias);
+#else
 	gpio_set_value(GPIO_MICBIAS_EN, wm8994_mic_bias || jack_mic_bias);
+#endif
 #else
 	gpio_set_value(GPIO_MICBIAS_EN, wm8994_mic_bias);
 	gpio_set_value(GPIO_SUB_MICBIAS_EN, jack_mic_bias);
@@ -2350,6 +2363,12 @@ static struct switch_dev switch_dock = {
 	.name = "dock",
 };
 
+unsigned int get_dock_status(void)
+{
+	return switch_get_state(&switch_dock);
+}
+EXPORT_SYMBOL(get_dock_status);
+
 static void fsa9480_deskdock_cb(bool attached)
 {
 	struct usb_gadget *gadget = platform_get_drvdata(&s3c_device_usbgadget);
@@ -2654,6 +2673,26 @@ static struct sec_jack_zone sec_jack_zones[] = {
 		.check_count = 20,
 		.jack_type = SEC_HEADSET_3POLE,
 	},
+#if defined(CONFIG_GALAXY_I897) //cappy is 700 to 2500
+        {
+                /* 0 < adc <= 700, unstable zone, default to 3pole if it stays
+                 * in this range for 800ms (10ms delays, 80 samples)
+                 */
+                .adc_high = 700,
+                .delay_ms = 10,
+                .check_count = 80,
+                .jack_type = SEC_HEADSET_3POLE,
+        },
+        {
+                /* 700 < adc <= 2500, unstable zone, default to 4pole if it
+                 * stays in this range for 800ms (10ms delays, 80 samples)
+                 */
+                .adc_high = 2500,
+                .delay_ms = 10,
+                .check_count = 80,
+                .jack_type = SEC_HEADSET_4POLE,
+        },
+#else
 	{
 		/* 0 < adc <= 900, unstable zone, default to 3pole if it stays
 		 * in this range for 800ms (10ms delays, 80 samples)
@@ -2672,6 +2711,7 @@ static struct sec_jack_zone sec_jack_zones[] = {
 		.check_count = 80,
 		.jack_type = SEC_HEADSET_4POLE,
 	},
+#endif
 	{
 		/* 2000 < adc <= 3400, 4 pole zone, default to 4pole if it
 		 * stays in this range for 100ms (10ms delays, 10 samples)
@@ -2775,7 +2815,11 @@ struct sec_jack_platform_data sec_jack_pdata = {
 	.buttons_zones = sec_jack_buttons_zones,
 	.num_buttons_zones = ARRAY_SIZE(sec_jack_buttons_zones),
 	.det_gpio = GPIO_DET_35,
+#if defined(CONFIG_GALAXY_I897)
+ 	.send_end_gpio = GPIO_KBC2,
+#else
 	.send_end_gpio = GPIO_EAR_SEND_END,
+#endif
 };
 
 static struct platform_device sec_device_jack = {
@@ -3363,6 +3407,9 @@ static void __init sound_init(void)
 
 #if !defined(CONFIG_ARIES_NTT)
 	gpio_request(GPIO_MICBIAS_EN, "micbias_enable");
+#if defined(CONFIG_GALAXY_I897)
+  	gpio_request(GPIO_EAR_MICBIAS_EN, "ear_micbias_enable");
+#endif
 #else
 	gpio_request(GPIO_MICBIAS_EN, "micbias_enable");
 	gpio_request(GPIO_SUB_MICBIAS_EN, "sub_micbias_enable");
