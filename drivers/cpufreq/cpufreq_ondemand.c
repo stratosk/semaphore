@@ -76,6 +76,7 @@ struct cpu_dbs_info_s {
 	cputime64_t prev_cpu_idle;
 	cputime64_t prev_cpu_iowait;
 	cputime64_t prev_cpu_wall;
+	unsigned int prev_cpu_wall_delta;
 	cputime64_t prev_cpu_nice;
 	struct cpufreq_policy *cur_policy;
 	struct delayed_work work;
@@ -491,6 +492,8 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 		unsigned int idle_time, wall_time, iowait_time;
 		unsigned int load, load_freq;
 		int freq_avg;
+		unsigned int deep_sleep_ratio = 1;
+		const unsigned int deep_sleep_backoff = 3;
 
 		j_dbs_info = &per_cpu(od_cpu_dbs_info, j);
 
@@ -500,6 +503,13 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 		wall_time = (unsigned int) cputime64_sub(cur_wall_time,
 				j_dbs_info->prev_cpu_wall);
 		j_dbs_info->prev_cpu_wall = cur_wall_time;
+
+		if (j_dbs_info->prev_cpu_wall_delta > wall_time && wall_time)
+			deep_sleep_ratio = j_dbs_info->prev_cpu_wall_delta /
+				wall_time;
+		j_dbs_info->prev_cpu_wall_delta =
+			(j_dbs_info->prev_cpu_wall_delta * deep_sleep_backoff
+			 + wall_time) / (deep_sleep_backoff+1);
 
 		idle_time = (unsigned int) cputime64_sub(cur_idle_time,
 				j_dbs_info->prev_cpu_idle);
@@ -540,6 +550,7 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 			continue;
 
 		load = 100 * (wall_time - idle_time) / wall_time;
+		load /= deep_sleep_ratio;
 
 		freq_avg = __cpufreq_driver_getavg(policy, j);
 		if (freq_avg <= 0)
