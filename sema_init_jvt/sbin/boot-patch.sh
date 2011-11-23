@@ -5,6 +5,8 @@
 /sbin/ext/busybox sh /sbin/boot/properties.sh
 /sbin/ext/busybox sh /sbin/boot/install.sh
 /sbin/ext/busybox sh /sbin/boot/ext4speed.sh
+/sbin/ext/busybox sh /sbin/boot/bl_detect.sh
+/sbin/ext/busybox sh /sbin/boot/bl_detect2.sh &
 /sbin/ext/busybox sh /sbin/boot/scripts.sh
 /sbin/ext/busybox sh /sbin/boot/tweaks.sh
 
