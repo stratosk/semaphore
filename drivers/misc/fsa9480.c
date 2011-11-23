@@ -377,7 +377,7 @@ static void fsa9480_detect_dev(struct fsa9480_usbsw *usbsw)
                                 dev_err(&client->dev,
                                         "%s: err %d\n", __func__, ret);
 
-                        ret = i2c_smbus_read_byte_data(client,                     					FSA9480_REG_CTRL);
+                        ret = i2c_smbus_read_byte_data(client, FSA9480_REG_CTRL);
                         if (ret < 0)
                                 dev_err(&client->dev,
                                         "%s: err %d\n", __func__, ret);
