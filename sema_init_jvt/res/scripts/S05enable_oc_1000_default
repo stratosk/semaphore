@@ -1,7 +1,7 @@
 #!/system/bin/sh
-#Overclocking
+#Over/Underclocking
 #Change highest CPU frequency
-#1000
+#1000*
 
 rmmod cpufreq_stats
 echo 0 > /sys/devices/virtual/misc/semaphore_cpufreq/oc

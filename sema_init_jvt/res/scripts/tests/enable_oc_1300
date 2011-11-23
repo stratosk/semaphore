@@ -1,6 +1,6 @@
 #!/system/bin/sh
-#Overclocking
-#Change highest CPU frequency
+#Overclocking Test
+#Change highest CPU frequency (Reset after reboot)
 #1300
 
 rmmod cpufreq_stats

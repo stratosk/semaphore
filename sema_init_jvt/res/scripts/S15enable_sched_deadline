@@ -21,3 +21,7 @@ echo 4 > /sys/class/block/mmcblk0/queue/iosched/writes_starved
 echo 4 > /sys/class/block/mmcblk1/queue/iosched/writes_starved
 echo 4 > /sys/class/block/stl10/queue/iosched/writes_starved
 echo 4 > /sys/class/block/stl9/queue/iosched/writes_starved
+
+sleep 1
+rmmod sio-iosched
+

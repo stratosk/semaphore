@@ -1,6 +1,6 @@
 #!/system/bin/sh
 #Startup/Shutdown Sound
-#Restores files if they are backuped by the kernel
+#Restores files if they were backuped by the kernel
 
 if busybox [ ! -f /system/etc/PowerOn.snd ];
 then

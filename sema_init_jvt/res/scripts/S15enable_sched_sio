@@ -9,3 +9,6 @@ echo sio > /sys/class/block/mmcblk0/queue/scheduler
 echo sio > /sys/class/block/mmcblk1/queue/scheduler
 echo sio > /sys/class/block/stl10/queue/scheduler
 echo sio > /sys/class/block/stl9/queue/scheduler
+
+sleep 1
+rmmod deadline-iosched

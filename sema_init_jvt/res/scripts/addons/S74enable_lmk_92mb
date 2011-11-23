@@ -1,6 +1,8 @@
 #!/system/bin/sh
 #Low Memory Killer
+#Minimum free memory
+#92MB(Chainfire)
 
-echo "disabled" > /data/property/persist.tweak.minfree
+#echo "disabled" > /data/property/persist.tweak.minfree
 
 echo "2560,4096,6144,17408,19456,23552" > /sys/module/lowmemorykiller/parameters/minfree

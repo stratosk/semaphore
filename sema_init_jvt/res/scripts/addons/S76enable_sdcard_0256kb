@@ -1,7 +1,9 @@
 #!/system/bin/sh
 #SD-Card read ahead
+#Reduce Overhead on SD-Card read
+#256kB-64kB
 
-echo "disabled" > /data/property/persist.tweak.sdcard
+#echo "disabled" > /data/property/persist.tweak.sdcard
 
 echo "256" > /sys/devices/virtual/bdi/179:0/read_ahead_kb
 echo "256" > /sys/devices/virtual/bdi/179:8/read_ahead_kb
