@@ -1,4 +1,4 @@
-if /sbin/ext/busybox [ ! -f /system/cfroot/release-82-JVT-s2- ]; 
+if /sbin/ext/busybox [ ! -f /system/cfroot/release-82-JVT-s3- ]; 
 then
 # Remount system RW
     /sbin/ext/busybox mount -o remount,rw /system
@@ -37,38 +37,9 @@ then
     toolbox chown 0.0 /system/xbin/su
     toolbox chmod 4755 /system/xbin/su
 
-# Superuser
-    toolbox rm /system/app/Superuser.apk
-    toolbox rm /data/app/Superuser.apk
-    toolbox cat /res/misc/Superuser.apk > /system/app/Superuser.apk
-    toolbox chown 0.0 /system/app/Superuser.apk
-    toolbox chmod 644 /system/app/Superuser.apk
-
-# CWM & Tweak Manager
-    toolbox rm /system/app/CWMReboot.apk
-    toolbox rm /data/dalvik-cache/*CWMReboot.apk*
-    toolbox rm /data/app/eu.chainfire.cfroot.cwmreboot*.apk
-
-    toolbox rm /system/app/CWMManager.apk
-    toolbox rm /data/dalvik-cache/*CWMManager.apk*
-    toolbox rm /data/app/eu.chainfire.cfroot.cwmmanager*.apk
-
-    toolbox rm /system/app/TweakManager.apk
-    toolbox rm /data/dalvik-cache/*TweakManager.apk*
-    toolbox rm /data/app/eu.chainfire.cfroot.tweakmanager*.apk
-
-    toolbox cat /res/misc/CWMManager.apk > /system/app/CWMManager.apk
-    toolbox chown 0.0 /system/app/CWMManager.apk
-    toolbox chmod 644 /system/app/CWMManager.apk
-
-#    toolbox cat /res/misc/TweakManager.apk > /system/app/TweakManager.apk
-#    toolbox chown 0.0 /system/app/TweakManager.apk
-#    toolbox chmod 644 /system/app/TweakManager.apk
-
 # Semaphore Script Manager
     toolbox rm /system/app/Semaphore.apk
     toolbox rm /data/dalvik-cache/*semaphore.apk*
-#    toolbox rm /data/app/hm.semaphore*.apk
 
     toolbox cat /res/misc/Semaphore.apk > /system/app/Semaphore.apk
     toolbox chown 0.0 /system/app/Semaphore.apk
@@ -80,7 +51,7 @@ then
     toolbox rm /data/cfroot/*
     toolbox rmdir /data/cfroot
     toolbox rm /system/cfroot/*
-    echo 1 > /system/cfroot/release-82-JVT-s2-
+    echo 1 > /system/cfroot/release-82-JVT-s3-
 
 # Remount system RO
     /sbin/ext/busybox mount -o remount,ro /system
