@@ -1,3 +1,6 @@
+if /sbin/ext/busybox [ ! -f /system/cfroot/disable_bl ];
+then
+
 if /sbin/ext/busybox [ -f /data/local/first_boot ] && /sbin/ext/busybox [ ! -f /data/local/succ_boot ];
 then
 	# Remount system RW
@@ -18,3 +21,5 @@ fi;
 
 # remove succesful boot flag
 toolbox rm /data/local/succ_boot
+
+fi;
