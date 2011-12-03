@@ -318,7 +318,7 @@ static struct s3cfb_lcd s6e63m0 = {
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC2 (5000 * SZ_1K)
 #else
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC0 (11264 * SZ_1K) //(12288 * SZ_1K)
-#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC1 (5000 * SZ_1K) //(9900 * SZ_1K)
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC1 (6144 * SZ_1K) //(9900 * SZ_1K)
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC2 (11264 * SZ_1K) //(12288 * SZ_1K)
 #endif
 #if !defined(CONFIG_ARIES_NTT)   
@@ -2363,11 +2363,13 @@ static struct switch_dev switch_dock = {
 	.name = "dock",
 };
 
+#if defined(CONFIG_GALAXY_I897)
 unsigned int get_dock_status(void)
 {
 	return switch_get_state(&switch_dock);
 }
 EXPORT_SYMBOL(get_dock_status);
+#endif
 
 static void fsa9480_deskdock_cb(bool attached)
 {

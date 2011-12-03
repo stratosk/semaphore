@@ -531,9 +531,11 @@ static int gp2a_i2c_probe(struct i2c_client *client,
 		goto err_sysfs_create_group_proximity;
 	}
 
+#if defined(CONFIG_GALAXY_I897)
 	// report initial state of proximity
  	input_report_abs(input_dev, ABS_DISTANCE, gpio_get_value(gp2a->pdata->p_out));
- 	input_sync(input_dev); 		
+ 	input_sync(input_dev); 
+#endif		
 
 	/* hrtimer settings.  we poll for light values using a timer. */
 	hrtimer_init(&gp2a->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);

@@ -234,6 +234,7 @@ struct gain_info_t playback_gain_table[PLAYBACK_GAIN_NUM] = {
 		.reg  = WM8994_RIGHT_OPGA_VOLUME,	/* 21h */
 		.mask = WM8994_MIXOUTR_VOL_MASK,
 		.gain = WM8994_MIXOUT_VU | 0x39
+#if defined(CONFIG_GALAXY_I897)
 	}, { /* EXTRA_DOCK_SPEAKER */
 		.mode = PLAYBACK_EXTRA_DOCK,
 		.reg  = WM8994_OUTPUT_MIXER_5,		/* 31h */
@@ -270,6 +271,9 @@ struct gain_info_t playback_gain_table[PLAYBACK_GAIN_NUM] = {
 		.mask = WM8994_IN1L_VOL_MASK,
 		.gain = WM8994_IN1L_VU | 0x1A		/* +22.5dB */
 	},
+#else
+	}
+#endif
 };
 
 struct gain_info_t voicecall_gain_table[VOICECALL_GAIN_NUM] = {
@@ -433,6 +437,7 @@ struct gain_info_t voicecall_gain_table[VOICECALL_GAIN_NUM] = {
 		.reg  = WM8994_RIGHT_OUTPUT_VOLUME,	/* 1Dh */
 		.mask = WM8994_HPOUT1R_VOL_MASK,
 		.gain = WM8994_HPOUT1_VU | 0x30
+#if defined(CONFIG_GALAXY_I897)
 	}, { /* EXTRA_DOCK_SPEAKER */
                 .mode = VOICECALL_EXTRA_DOCK,
                 .reg  = WM8994_LEFT_LINE_INPUT_1_2_VOLUME,      /* 18h */
@@ -469,7 +474,9 @@ struct gain_info_t voicecall_gain_table[VOICECALL_GAIN_NUM] = {
                 .mask = WM8994_LINEOUT2_VOL_MASK,
                 .gain = 0x0 << WM8994_LINEOUT2_VOL_SHIFT
         }
-
+#else
+	}
+#endif
 };
 
 struct gain_info_t recording_gain_table[RECORDING_GAIN_NUM] = {
@@ -2615,6 +2622,7 @@ void wm8994_set_voicecall_speaker(struct snd_soc_codec *codec)
 	wm8994_write(codec, WM8994_AIF1_DAC1_FILTERS_1, WM8994_AIF1DAC2_UNMUTE);
 }
 
+#if defined(CONFIG_GALAXY_I897)
 void wm8994_set_voicecall_extra_dock_speaker(struct snd_soc_codec *codec)
 {
 	struct wm8994_priv *wm8994 = codec->drvdata;
@@ -2756,6 +2764,7 @@ void wm8994_set_voicecall_extra_dock_speaker(struct snd_soc_codec *codec)
         wm8994_write(codec, WM8994_DAC1_RIGHT_VOLUME, val);
 
 }
+#endif
 
 void wm8994_set_voicecall_bluetooth(struct snd_soc_codec *codec)
 {
