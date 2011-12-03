@@ -77,7 +77,7 @@ UTS_TRUNCATE="cut -b -$UTS_LEN"
   else
     echo \#define LINUX_COMPILE_DOMAIN
   fi
-lgcc="Linaro GCC 4.6-2011.09-1"
+lgcc="Linaro GCC 4.6-2011.11"
   echo \#define LINUX_COMPILER \"`echo $lgcc`\"
 ) > .tmpcompile
 
