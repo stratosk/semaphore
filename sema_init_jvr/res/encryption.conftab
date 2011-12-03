@@ -1,8 +1,0 @@
-# mount point   device name   device mapper path   device mapper name   file sysystem   protect type
-/dbdata /dev/block/stl10 /dev/mapper/dbdata dbdata rfs NOT_PROTECTED 
-/data /dev/block/mmcblk0p2 /dev/mapper/data data rfs NOT_PROTECTED 
-/sdcard /dev/block/mmcblk0p1 /dev/mapper/sdcard sdcard vfat NOT_PROTECTED 
-/cache /dev/block/stl11 /dev/mapper/cache cache rfs NOT_PROTECTED 
-#/data/data /dev/block/mmcblk0p3 /dev/mapper/dataprivate dataprivate rfs PROTECTED_WITHOUT_PASSWORD 
-/ext_sdcard /dev/block/mmcblk1 /dev/mapper/extsdcard sdcard1 vfat PROTECTED_WITH_PASSWORD 
-/efs /dev/block/stl3 /dev/mapper/efs efs rfs NOT_PROTECTED
