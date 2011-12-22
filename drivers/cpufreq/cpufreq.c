@@ -37,7 +37,7 @@ int exp_UV_mV[5];
 extern unsigned int freq_uv_table[5][3];
 int enabled_freqs[5] = { 1, 1, 1, 1, 1 };
 
-static unsigned long policy_max_ori = 0;
+static unsigned int policy_max_ori = 1000000;
 
 /**
  * The "cpufreq driver" - the arch- or hardware-dependent low
