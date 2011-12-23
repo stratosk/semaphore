@@ -1,0 +1,16 @@
+#!/system/bin/sh
+#Governors
+#Change CPU governor
+#SaveBattery
+
+insmod /lib/modules/cpufreq_conservative.ko
+
+echo conservative >/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+echo 10 >/sys/devices/system/cpu/cpu0/cpufreq/conservative/freq_step
+echo 75 >/sys/devices/system/cpu/cpu0/cpufreq/conservative/down_threshold
+echo 95 >/sys/devices/system/cpu/cpu0/cpufreq/conservative/up_threshold
+echo 0 >/sys/devices/system/cpu/cpu0/cpufreq/conservative/ignore_nice_load
+
+#sleep 1
+#Causes reboot on turning screen off.
+#rmmod cpufreq_smartass2

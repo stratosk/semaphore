@@ -1,0 +1,9 @@
+#!/system/bin/sh
+#Disable Bootloop detection
+#Disable cleaning init.d after bootloop
+
+busybox mount -o remount,rw  /system
+
+echo 1 > /system/cfroot/disable_bl
+
+busybox mount -o remount,ro  /system

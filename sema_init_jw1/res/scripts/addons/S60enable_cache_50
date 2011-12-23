@@ -1,0 +1,35 @@
+#!/system/bin/sh
+#Virtual /cache to 50MB
+#Change /cache to virtual 50MB
+
+#
+# stratosk - 27/07/2011
+# corgar - 28/07/2011 (changed location of cache in dbdata for onenand i/o, decreased cache dimension to 54.4MB)
+# leonick - 05/08/2011 (removed unneeded ext4 parameters making it galaxy tab compatible)
+# leonick - 07/08/2011 (using /data/local as location again, using OneNAND doesn't seem like an all too good idea)
+# stratosk - 07/08/2011 (create the cache.img file once)
+# ixnyne - 21/09/2011 (busybox usage fixes)
+#
+# Remount /cache partition with a larger one (54.4MB)
+
+cache=/data/local/cache.img
+
+# check for cache image
+if [ ! -f $cache ]; then
+        # create a file 54.4MB
+        dd if=/dev/zero of=$cache bs=1024 count=55808
+
+        # create ext2 filesystem
+        mke2fs -F $cache
+fi
+
+# unmount the old one
+umount /cache
+
+# setup the loopback and mount
+busybox losetup /dev/block/loop7 $cache
+busybox mount /dev/block/loop7 /cache
+
+# fix the ownership and permissions
+chown system.cache /cache
+chmod 770 /cache

@@ -1,0 +1,14 @@
+#!/system/bin/sh
+#Overclocking Test
+#Change highest CPU frequency (Reset after reboot)
+#1200
+
+rmmod cpufreq_stats
+echo 2 > /sys/devices/virtual/misc/semaphore_cpufreq/oc
+sleep 1
+insmod /lib/modules/cpufreq_stats.ko
+
+echo 1200000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+
+# values in mV, from 1.2GHz/1GHz - 100 MHz
+#echo "0 25 50 50 75" > /sys/devices/system/cpu/cpu0/cpufreq/UV_mV_table

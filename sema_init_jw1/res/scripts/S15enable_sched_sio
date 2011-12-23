@@ -1,0 +1,14 @@
+#!/system/bin/sh
+#Schedulers
+#Change I/O scheduler
+#Simple I/O
+
+insmod /lib/modules/sio-iosched.ko
+
+echo sio > /sys/class/block/mmcblk0/queue/scheduler
+echo sio > /sys/class/block/mmcblk1/queue/scheduler
+echo sio > /sys/class/block/stl10/queue/scheduler
+echo sio > /sys/class/block/stl9/queue/scheduler
+
+sleep 1
+rmmod deadline-iosched

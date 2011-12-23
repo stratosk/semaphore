@@ -1,0 +1,27 @@
+#!/system/bin/sh
+#Virtual /cache to 50MB
+#Change /cache to virtual 50MB
+
+# unmount the old one
+umount /cache
+busybox losetup -d /dev/block/loop7
+
+# mount cache partition
+busybox mount -t ext4 -o nosuid,nodev /dev/block/stl11 /cache
+busybox mount -t rfs -o nosuid,nodev,check=no /dev/block/stl11 /cache
+
+# fix the ownership and permissions
+chown system.cache /cache
+chmod 770 /cache
+
+# Remount all partitions with noatime, nodiratime
+sync;
+busybox mount -o remount,noatime,nodiratime /cache
+
+for k in $(busybox mount | grep ext4 | cut -d " " -f3)
+do
+  if [ "$k" = "/cache" ]; then
+    sync;
+    busybox mount -o remount,noauto_da_alloc,barrier=1 $k;
+  fi;
+done

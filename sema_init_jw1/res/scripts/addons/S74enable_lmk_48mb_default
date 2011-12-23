@@ -1,0 +1,8 @@
+#!/system/bin/sh
+#Low Memory Killer
+#Minimum free memory
+#48MB(Default)
+
+#echo "disabled" > /data/property/persist.tweak.minfree
+
+echo "2560,4096,6144,10240,11264,12288" > /sys/module/lowmemorykiller/parameters/minfree

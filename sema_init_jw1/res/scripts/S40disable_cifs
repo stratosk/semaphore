@@ -1,0 +1,5 @@
+#!/system/bin/sh
+#CIFS
+#Unload cifs module (mount Windows shares)
+
+rmmod cifs

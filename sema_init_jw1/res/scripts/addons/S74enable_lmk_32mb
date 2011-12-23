@@ -1,0 +1,8 @@
+#!/system/bin/sh
+#Low Memory Killer
+#Minimum free memory
+#32MB(Multitasking)
+
+#echo "disabled" > /data/property/persist.tweak.minfree
+
+echo "1536,2560,3584,6144,7168,8192" > /sys/module/lowmemorykiller/parameters/minfree

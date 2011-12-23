@@ -1,0 +1,8 @@
+#!/system/bin/sh
+#Logger
+#Enable logger (must reboot)
+
+if /sbin/ext/busybox [ ! -f /data/local/logger.ko ];
+then
+	cp /lib/modules/logger.ko /data/local/logger.ko
+fi;

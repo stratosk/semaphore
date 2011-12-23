@@ -1,0 +1,10 @@
+#!/system/bin/sh
+#VM Dirtyness
+#Tunes I/O buffering (Chainfire)
+
+echo "2000" > /proc/sys/vm/dirty_writeback_centisecs
+echo "1000" > /proc/sys/vm/dirty_expire_centisecs
+echo "90" > /proc/sys/vm/dirty_ratio
+echo "5" > /proc/sys/vm/dirty_background_ratio
+echo "1" > /proc/sys/vm/vfs_cache_pressure
+echo "0" > /proc/sys/vm/swappiness
