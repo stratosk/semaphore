@@ -2070,10 +2070,11 @@ static void powersave_early_suspend(struct early_suspend *handler)
 			return;
 		if (cpufreq_get_policy(&new_policy, cpu))
 			goto out;
-		
+
 		policy_max_ori = new_policy.max;
-		
+
 		new_policy.max = 800000;
+
 		__cpufreq_set_policy(cpu_policy, &new_policy);
 		cpu_policy->user_policy.policy = cpu_policy->policy;
 		cpu_policy->user_policy.governor = cpu_policy->governor;

@@ -22,6 +22,7 @@
 #include <linux/tick.h>
 #include <linux/ktime.h>
 #include <linux/sched.h>
+#include <linux/earlysuspend.h>
 
 /*
  * dbs is used in this file as a shortform for demandbased switching
@@ -54,6 +55,8 @@
 #define MIN_SAMPLING_RATE_RATIO			(2)
 
 static unsigned int min_sampling_rate;
+static unsigned int orig_sampling_rate;
+static unsigned int orig_sampling_down_factor;
 
 #define LATENCY_MULTIPLIER			(1000)
 #define MIN_LATENCY_MULTIPLIER			(100)
@@ -370,6 +373,7 @@ static ssize_t store_sampling_down_factor(struct kobject *a,
 		return -EINVAL;
 	mutex_lock(&dbs_mutex);
 	dbs_tuners_ins.sampling_down_factor = input;
+	orig_sampling_down_factor = dbs_tuners_ins.sampling_down_factor;
 
 	/* Reset down sampling multiplier in case it was active */
 	for_each_online_cpu(j) {
@@ -696,6 +700,9 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 		dbs_freq_increase(policy, policy->max);
 		
 		/* Calculate momentum and update sampling down factor */
+		
+		mutex_lock(&dbs_mutex);
+		
 		if (++this_dbs_info->momentum_adder > dbs_tuners_ins.sampling_down_momentum_sensitivity)
 			this_dbs_info->momentum_adder = dbs_tuners_ins.sampling_down_momentum_sensitivity;
 		
@@ -705,20 +712,27 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 		if (dbs_tuners_ins.sampling_down_momentum > dbs_tuners_ins.sampling_down_max_momentum)
 			dbs_tuners_ins.sampling_down_momentum = dbs_tuners_ins.sampling_down_max_momentum;
 		
-		dbs_tuners_ins.sampling_down_factor = DEF_SAMPLING_DOWN_FACTOR + dbs_tuners_ins.sampling_down_momentum;
+		dbs_tuners_ins.sampling_down_factor = orig_sampling_down_factor + dbs_tuners_ins.sampling_down_momentum;
+		
+		mutex_unlock(&dbs_mutex);
 		
 		return;
 	}
 
 	/* Calculate momentum and update sampling down factor */
+
+	mutex_lock(&dbs_mutex);
+
 	if (this_dbs_info->momentum_adder > 0)
 		this_dbs_info->momentum_adder--;
 
 	dbs_tuners_ins.sampling_down_momentum = (this_dbs_info->momentum_adder * dbs_tuners_ins.sampling_down_max_momentum) 
 						  / dbs_tuners_ins.sampling_down_momentum_sensitivity;
 
-	dbs_tuners_ins.sampling_down_factor = DEF_SAMPLING_DOWN_FACTOR + dbs_tuners_ins.sampling_down_momentum;
+	dbs_tuners_ins.sampling_down_factor = orig_sampling_down_factor + dbs_tuners_ins.sampling_down_momentum;
 
+	mutex_unlock(&dbs_mutex);
+	
 	/* Check for frequency decrease */
 	/* if we cannot reduce the frequency anymore, break out early */
 	if (policy->cur == policy->min)
@@ -829,6 +843,34 @@ static int should_io_be_busy(void)
 	return 1;
 }
 
+static void powersave_early_suspend(struct early_suspend *handler)
+{
+	mutex_lock(&dbs_mutex);
+
+	dbs_tuners_ins.io_is_busy = 0;
+	dbs_tuners_ins.sampling_down_max_momentum = 0;
+	dbs_tuners_ins.sampling_rate *= 4;
+	
+	mutex_unlock(&dbs_mutex);
+}
+
+static void powersave_late_resume(struct early_suspend *handler)
+{
+	mutex_lock(&dbs_mutex);
+
+	dbs_tuners_ins.io_is_busy = 1;
+	dbs_tuners_ins.sampling_down_max_momentum = DEF_SAMPLING_DOWN_MAX_MOMENTUM;
+	dbs_tuners_ins.sampling_rate = orig_sampling_rate;
+	
+	mutex_unlock(&dbs_mutex);
+}
+
+static struct early_suspend _powersave_early_suspend = {
+	.suspend = powersave_early_suspend,
+	.resume = powersave_late_resume,
+	.level = EARLY_SUSPEND_LEVEL_BLANK_SCREEN,
+};
+
 static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
 				   unsigned int event)
 {
@@ -893,12 +935,15 @@ static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
 			dbs_tuners_ins.sampling_rate =
 				max(min_sampling_rate,
 				    latency * LATENCY_MULTIPLIER);
+			orig_sampling_rate = dbs_tuners_ins.sampling_rate;
+			orig_sampling_down_factor = dbs_tuners_ins.sampling_down_factor;
 			dbs_tuners_ins.io_is_busy = should_io_be_busy();
 		}
 		mutex_unlock(&dbs_mutex);
 
 		mutex_init(&this_dbs_info->timer_mutex);
 		dbs_timer_init(this_dbs_info);
+		register_early_suspend(&_powersave_early_suspend);
 		break;
 
 	case CPUFREQ_GOV_STOP:
@@ -913,6 +958,7 @@ static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
 			sysfs_remove_group(cpufreq_global_kobject,
 					   &dbs_attr_group);
 
+		unregister_early_suspend(&_powersave_early_suspend);
 		break;
 
 	case CPUFREQ_GOV_LIMITS:
