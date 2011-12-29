@@ -458,6 +458,26 @@ static void tl2796_ldi_disable(struct s5p_lcd *lcd)
 	mutex_unlock(&lcd->lock);
 }
 
+int bl_update_brightness(int bl)
+{
+	if (bl < 0 || bl > 255)
+		return -EINVAL;
+
+	mutex_lock(&lcd_->lock);
+
+	lcd_->bl = bl;
+
+	if (lcd_->ldi_enable) {
+		pr_debug("\n bl :%d\n", bl);
+		update_brightness(lcd_);
+	}
+
+	mutex_unlock(&lcd_->lock);
+
+	return 0;    
+}
+EXPORT_SYMBOL_GPL(bl_update_brightness);
+
 static int s5p_bl_update_status(struct backlight_device *bd)
 {
 	struct s5p_lcd *lcd = bl_get_data(bd);

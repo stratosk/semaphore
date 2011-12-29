@@ -67,6 +67,8 @@
 #define PROXIMITY	1
 #define ALL		2
 
+int global_adc = 0;
+
 static u8 reg_defaults[5] = {
 	0x00, /* PROX: read only register */
 	0x08, /* GAIN: large LED drive level */
@@ -321,6 +323,12 @@ static int lightsensor_get_adcvalue(struct gp2a_data *gp2a)
 	return gp2a->pdata->light_adc_value();
 }
 
+int ls_get_adcvalue(void)
+{
+	return global_adc;
+}
+EXPORT_SYMBOL_GPL(ls_get_adcvalue);
+
 static void gp2a_work_func_light(struct work_struct *work)
 {
 	int i;
@@ -329,7 +337,8 @@ static void gp2a_work_func_light(struct work_struct *work)
 					      work_light);
 
 	adc = lightsensor_get_adcvalue(gp2a);
-
+	global_adc = adc;
+	
 	for (i = 0; ARRAY_SIZE(adc_table); i++)
 		if (adc <= adc_table[i])
 			break;
@@ -539,7 +548,7 @@ static int gp2a_i2c_probe(struct i2c_client *client,
 
 	/* hrtimer settings.  we poll for light values using a timer. */
 	hrtimer_init(&gp2a->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-	gp2a->light_poll_delay = ns_to_ktime(1000 * NSEC_PER_MSEC);
+	gp2a->light_poll_delay = ns_to_ktime(200 * NSEC_PER_MSEC);
 	gp2a->timer.function = gp2a_timer_func;
 
 	/* the timer just fires off a work queue request.  we need a thread
