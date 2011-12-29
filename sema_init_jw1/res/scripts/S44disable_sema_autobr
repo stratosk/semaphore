@@ -1,0 +1,5 @@
+#!/system/bin/sh
+#Semaphore Auto brigthness
+#Enable Semaphore Auto brightness
+
+rmmod sema_autobr
