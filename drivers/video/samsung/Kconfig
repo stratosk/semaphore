@@ -94,6 +94,13 @@ config FB_S3C_TL2796
         ---help---
           This enables support for Samsung TL2796 WVGA LCD panel
 
+config FB_SEMA_AUTOBR
+	tristate "Semaphore Auto Brightness driver"
+	depends on FB_S3C_TL2796
+	default m
+	---help---
+	  This enables support for Semaphore Auto Brighness driver
+
 config FB_VOODOO
         bool "Voodoo Color"
         depends on FB_S3C_TL2796

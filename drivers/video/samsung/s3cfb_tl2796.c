@@ -79,6 +79,8 @@ unsigned int panel_config_sequence = 0;
 
 int hacky_v1_offset[3] = {-14, -17, -18};
 
+bool block_bl = false;
+
 static const u16 s6e63m0_SEQ_ETC_SETTING_SAMSUNG[] = {
 	/* ETC Condition Set Command  */
 	0x0F6,
@@ -478,11 +480,26 @@ int bl_update_brightness(int bl)
 }
 EXPORT_SYMBOL_GPL(bl_update_brightness);
 
+void block_bl_update(void)
+{
+	block_bl = true;
+}
+EXPORT_SYMBOL_GPL(block_bl_update);
+
+void unblock_bl_update(void)
+{
+	block_bl = false;
+}
+EXPORT_SYMBOL_GPL(unblock_bl_update);
+
 static int s5p_bl_update_status(struct backlight_device *bd)
 {
 	struct s5p_lcd *lcd = bl_get_data(bd);
 	int bl = bd->props.brightness;
 
+	if (block_bl)
+		return 0;
+	
 	pr_debug("\nupdate status brightness %d\n",
 				bd->props.brightness);
 
