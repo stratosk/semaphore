@@ -321,6 +321,7 @@ static ssize_t store_sampling_rate(struct kobject *a, struct attribute *b,
 
 	mutex_lock(&dbs_mutex);
 	dbs_tuners_ins.sampling_rate = max(input, min_sampling_rate);
+	orig_sampling_rate = dbs_tuners_ins.sampling_rate;
 	mutex_unlock(&dbs_mutex);
 
 	return count;
