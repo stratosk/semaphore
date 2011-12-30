@@ -1,0 +1,13 @@
+#!/system/bin/sh
+#Semaphore Auto brigthness
+#Brightness level
+#Dark
+
+insmod /lib/modules/sema_autobr.ko
+
+echo 10 > /sys/devices/virtual/misc/sema_autobr/min_brightness
+echo 3000 > /sys/devices/virtual/misc/sema_autobr/max_lux
+#echo 255 > /sys/devices/virtual/misc/sema_autobr/max_brightness
+#echo 30 > /sys/devices/virtual/misc/sema_autobr/instant_update_thres
+#echo 0 > /sys/devices/virtual/misc/sema_autobr/effect_delay_ms
+

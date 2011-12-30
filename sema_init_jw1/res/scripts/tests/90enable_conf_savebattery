@@ -10,7 +10,6 @@ rm -f /data/SemaphoreScripts/*
 #Try kernel scripts first
 # SaveBattery kernel features
 cp /res/scripts/S05enable_oc_0800 /data/SemaphoreScripts
-cp /res/scripts/S06enable_uv_0_default /data/SemaphoreScripts
 cp /res/scripts/S10enable_gov_cons_savebattery /data/SemaphoreScripts
 cp /res/scripts/S15enable_sched_sio /data/SemaphoreScripts
 cp /res/scripts/S20disable_netfilter /data/SemaphoreScripts
@@ -30,7 +29,6 @@ cp /res/scripts/addons/S78enable_touchscreen_1 /data/SemaphoreScripts
 #Try sdcard second
 # SaveBattery kernel features
 cp /mnt/sdcard/SemaphoreScripts/S05enable_oc_0800 /data/SemaphoreScripts
-cp /mnt/sdcard/SemaphoreScripts/S06enable_uv_0_default /data/SemaphoreScripts
 cp /mnt/sdcard/SemaphoreScripts/S10enable_gov_cons_savebattery /data/SemaphoreScripts
 cp /mnt/sdcard/SemaphoreScripts/S15enable_sched_sio /data/SemaphoreScripts
 cp /mnt/sdcard/SemaphoreScripts/S20disable_netfilter /data/SemaphoreScripts

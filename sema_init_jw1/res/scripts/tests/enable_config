@@ -1,6 +1,0 @@
-#!/system/bin/sh
-#Enable kernel config
-#Enable kernel config in image and /proc/config.gz
-#1200
-
-insmod /lib/modules/configs.ko

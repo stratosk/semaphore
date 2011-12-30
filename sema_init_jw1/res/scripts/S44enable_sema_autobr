@@ -1,5 +1,0 @@
-#!/system/bin/sh
-#Semaphore Auto brigthness
-#Enable Semaphore Auto brightness
-
-insmod /lib/modules/sema_autobr.ko
