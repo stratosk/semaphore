@@ -1,5 +1,0 @@
-#!/system/bin/sh
-#TUN
-#Load tun module
-
-insmod /lib/modules/tun.ko

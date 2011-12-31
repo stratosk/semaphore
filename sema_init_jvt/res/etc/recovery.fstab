@@ -1,8 +1,0 @@
-# mount point	fstype		device      device2 (redundant)             options
-
-/sdcard		vfat	/dev/block/mmcblk0p1
-/system		rfs	/dev/block/stl9
-/cache		rfs	/dev/block/stl11
-/data		rfs	/dev/block/mmcblk0p2
-/datadata	rfs	/dev/block/stl10
-/boot		bml	boot

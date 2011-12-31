@@ -1,6 +1,0 @@
-#!/system/bin/sh
-#IPv6 privacy
-#Enable IPv6 privacy
-
-sysctl -w net.ipv6.conf.default.use_tempaddr=2
-sysctl -w net.ipv6.conf.all.use_tempaddr=2

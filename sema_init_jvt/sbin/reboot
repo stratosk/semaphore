@@ -1,7 +1,0 @@
-#!/sbin/ext/busybox sh
-
-if test "$1" = ''; then
-	/sbin/ext/reboot normal
-else
-	/sbin/ext/reboot $*
-fi;

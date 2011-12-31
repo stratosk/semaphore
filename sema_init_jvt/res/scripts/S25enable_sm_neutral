@@ -1,6 +1,0 @@
-#!/system/bin/sh
-#Speedmod Colors
-#Color presets
-#Neutral*
-
-echo 0 > /sys/devices/virtual/misc/speedmodk_mdnie/color_temp

@@ -1,8 +1,0 @@
-#!/system/bin/sh
-#Logger
-#Disable logger (must reboot)
-
-if /sbin/ext/busybox [ -f /data/local/logger.ko ];
-then
-	rm /data/local/logger.ko
-fi;
