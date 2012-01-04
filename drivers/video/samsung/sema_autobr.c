@@ -16,6 +16,7 @@
 #include <linux/delay.h>
 #include <linux/miscdevice.h>
 #include <linux/device.h>
+#include <linux/earlysuspend.h>
 
 
 #define AUTOBR_WORK_QUEUE_NAME "kautobr"
@@ -31,21 +32,27 @@ static struct workqueue_struct *wq=0;
 
 static DECLARE_DELAYED_WORK(autobr_wq, autobr_handler);
 
-static int min_brightness = 15;
-static int max_brightness = 255;
-static int instant_update_thres = 30;	/* the difference threshold that we have to update instantly */
-static int max_lux = 2900;		/* max value from the light sensor */
-static int effect_delay_ms = 0;		/* delay between step for the fade effect */
+static unsigned int min_brightness = 15;
+static unsigned int max_brightness = 255;
+static unsigned int instant_update_thres = 30;	/* the difference threshold that we have to update instantly */
+static unsigned int max_lux = 2900;		/* max value from the light sensor */
+static int effect_delay_ms = 0;			/* delay between step for the fade effect */
+static unsigned int block_fw = 1;		/* block framework brighness updates */
+
+static unsigned int current_br = 150;	/* holds the current brighntess */
+static unsigned int update_br;		/* the brighness value that we have to reach */
+static unsigned int sum_update_br;	/* the sum of samples */
+static unsigned int cnt = 0;
+static unsigned int delay;
 
 
-static int current_br = 150;	/* holds the current brighntess */
-static int update_br;		/* the brighness value that we have to reach */
-static int sum_update_br;	/* the sum of samples */
-static int cnt = 0;
-static int delay;
+/************ sysfs ************/
 
+static ssize_t show_current_br(struct device *dev, struct device_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%u\n", current_br);
+}
 
-/* sysfs */
 static ssize_t show_min_brightness(struct device *dev, struct device_attribute *attr, char *buf)
 {
 	return sprintf(buf, "%u\n", min_brightness);
@@ -53,7 +60,7 @@ static ssize_t show_min_brightness(struct device *dev, struct device_attribute *
 
 static ssize_t store_min_brightness(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
 {
-	int input;
+	unsigned int input;
 	int ret;
 	
 	ret = sscanf(buf, "%u", &input);
@@ -73,7 +80,7 @@ static ssize_t show_max_brightness(struct device *dev, struct device_attribute *
 
 static ssize_t store_max_brightness(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
 {
-	int input;
+	unsigned int input;
 	int ret;
 	
 	ret = sscanf(buf, "%u", &input);
@@ -93,7 +100,7 @@ static ssize_t show_instant_update_thres(struct device *dev, struct device_attri
 
 static ssize_t store_instant_update_thres(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
 {
-	int input;
+	unsigned int input;
 	int ret;
 	
 	ret = sscanf(buf, "%u", &input);
@@ -113,7 +120,7 @@ static ssize_t show_max_lux(struct device *dev, struct device_attribute *attr, c
 
 static ssize_t store_max_lux(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
 {
-	int input;
+	unsigned int input;
 	int ret;
 	
 	ret = sscanf(buf, "%u", &input);
@@ -146,18 +153,47 @@ static ssize_t store_effect_delay_ms(struct device *dev, struct device_attribute
 	return size;
 }
 
+static ssize_t show_block_fw(struct device *dev, struct device_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%u\n", block_fw);
+}
+
+static ssize_t store_block_fw(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
+{
+	unsigned int input;
+	int ret;
+	
+	ret = sscanf(buf, "%u", &input);
+	if (ret != 1 || input > 1) {
+		return -EINVAL;
+	}
+	
+	block_fw = input;
+
+	if (block_fw) 
+		block_bl_update();
+	else
+		unblock_bl_update();
+
+	return size;
+}
+
+static DEVICE_ATTR(current_br, S_IRUGO, show_current_br, NULL);
 static DEVICE_ATTR(min_brightness, S_IRUGO | S_IWUGO , show_min_brightness, store_min_brightness);
 static DEVICE_ATTR(max_brightness, S_IRUGO | S_IWUGO , show_max_brightness, store_max_brightness);
 static DEVICE_ATTR(instant_update_thres, S_IRUGO | S_IWUGO , show_instant_update_thres, store_instant_update_thres);
 static DEVICE_ATTR(max_lux, S_IRUGO | S_IWUGO , show_max_lux, store_max_lux);
 static DEVICE_ATTR(effect_delay_ms, S_IRUGO | S_IWUGO , show_effect_delay_ms, store_effect_delay_ms);
+static DEVICE_ATTR(block_fw, S_IRUGO | S_IWUGO , show_block_fw, store_block_fw);
  
 static struct attribute *sema_autobr_attributes[] = {
+	&dev_attr_current_br.attr,
 	&dev_attr_min_brightness.attr,
 	&dev_attr_max_brightness.attr,
 	&dev_attr_instant_update_thres.attr,
 	&dev_attr_max_lux.attr,
 	&dev_attr_effect_delay_ms.attr,
+	&dev_attr_block_fw.attr,
 	NULL
 };
 
@@ -169,7 +205,8 @@ static struct miscdevice sema_autobr_device = {
 	.minor = MISC_DYNAMIC_MINOR,
 	.name = "sema_autobr",
 };
-/* sysfs end */
+
+/************ sysfs end ************/
 
 static void autobr_handler(struct work_struct *w)
 {
@@ -236,9 +273,29 @@ static void autobr_handler(struct work_struct *w)
 		cnt = 0;
 	}
 	
-	
-	queue_delayed_work(wq, &autobr_wq, delay);
+	if (wq)
+		queue_delayed_work(wq, &autobr_wq, delay);
 }
+
+static void powersave_early_suspend(struct early_suspend *handler)
+{
+	if (wq) {
+		cancel_delayed_work(&autobr_wq);	
+		flush_workqueue(wq);
+	}
+}
+
+static void powersave_late_resume(struct early_suspend *handler)
+{
+	if (wq)
+		queue_delayed_work(wq, &autobr_wq, delay);
+}
+
+static struct early_suspend _powersave_early_suspend = {
+	.suspend = powersave_early_suspend,
+	.resume = powersave_late_resume,
+	.level = EARLY_SUSPEND_LEVEL_BLANK_SCREEN,
+};
 
 static int autobr_init(void)
 {
@@ -261,6 +318,8 @@ static int autobr_init(void)
 
 	block_bl_update();
 		
+	register_early_suspend(&_powersave_early_suspend);
+
 	printk(KERN_INFO "Semaphore Auto Brightness enabled\n");
 	
 	return 0;
@@ -271,13 +330,15 @@ static void autobr_exit(void)
 	misc_deregister(&sema_autobr_device);
 	
 	if (wq) {
-		cancel_delayed_work(&autobr_wq);	/* no "new ones" */
+		cancel_delayed_work(&autobr_wq);	
 		flush_workqueue(wq);
 		destroy_workqueue(wq);
 	}
 
 	unblock_bl_update();
 	
+	unregister_early_suspend(&_powersave_early_suspend);
+
 	printk(KERN_INFO "Semaphore Auto Brightness disabled\n");
 }
 
