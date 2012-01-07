@@ -57,7 +57,7 @@ struct s5p_lcd {
 	int bl;
 	int acl_enable;
 	int cur_acl;
-	int on_19gamma;
+	int on_22gamma;
 	const struct tl2796_gamma_adj_points *gamma_adj_points;
 	struct mutex	lock;
 	struct device *dev;
@@ -211,14 +211,14 @@ static void update_brightness(struct s5p_lcd *lcd)
 
 	gamma_value = get_gamma_value_from_bl(lcd->bl);
 
-	gprintk("Update status brightness[0~255]:(%d) gamma_value:(%d) on_19gamma(%d)\n", lcd->bl, gamma_value, lcd->on_19gamma);
+	gprintk("Update status brightness[0~255]:(%d) gamma_value:(%d) on_22gamma(%d)\n", lcd->bl, gamma_value, lcd->on_22gamma);
 
 #ifdef CONFIG_FB_S3C_TL2796_ACL
 	update_acl(lcd);
 #endif
-	if (lcd->on_19gamma)
+/*	if (lcd->on_22gamma)
 		s6e63m0_panel_send_sequence(lcd, pdata->gamma19_table[gamma_value]);
-	else
+	else*/
 		s6e63m0_panel_send_sequence(lcd, pdata->gamma22_table[gamma_value]);
 
 	s6e63m0_panel_send_sequence(lcd, pdata->gamma_update);
@@ -296,8 +296,8 @@ static ssize_t gammaset_file_cmd_store(struct device *dev,
 
 	if ((lcd->ldi_enable) && ((value == 0) || (value == 1))) {
 		printk("[gamma set] in gammaset_file_cmd_store, input value = %d\n", value);
-		if (value != lcd->on_19gamma)	{
-			lcd->on_19gamma = value;
+		if (value != lcd->on_22gamma)	{
+			lcd->on_22gamma = value;
 			update_brightness(lcd);
 		}
 	}
@@ -473,7 +473,7 @@ static int __devinit tl2796_probe(struct spi_device *spi)
 	}
 	lcd->data = (struct s5p_panel_data *)spi->dev.platform_data;
 
-	if (!lcd->data->gamma19_table || !lcd->data->gamma19_table ||
+	if (!lcd->data->gamma22_table || !lcd->data->gamma22_table ||
 		!lcd->data->seq_display_set || !lcd->data->seq_etc_set ||
 		!lcd->data->display_on || !lcd->data->display_off ||
 		!lcd->data->standby_on || !lcd->data->standby_off ||
