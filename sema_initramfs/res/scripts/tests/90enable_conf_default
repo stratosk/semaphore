@@ -1,0 +1,76 @@
+#!/system/bin/sh
+#Profiles
+#Kernel-Default
+
+#Execute and copy scripts
+mkdir /data/SemaphoreScripts
+rm -f /data/SemaphoreScripts/*
+
+#Try kernel scripts first
+# Default kernel features
+cp /res/scripts/S05enable_oc_1000_default /data/SemaphoreScripts
+cp /res/scripts/S06enable_uv_0_default /data/SemaphoreScripts
+cp /res/scripts/S10enable_gov_ondemand_default /data/SemaphoreScripts
+cp /res/scripts/S15enable_sched_noop_default /data/SemaphoreScripts
+cp /res/scripts/S20disable_netfilter /data/SemaphoreScripts
+cp /res/scripts/S25enable_sm_neutral /data/SemaphoreScripts
+cp /res/scripts/S30disable_logger /data/SemaphoreScripts
+cp /res/scripts/S35disable_tun /data/SemaphoreScripts
+cp /res/scripts/S40disable_cifs /data/SemaphoreScripts
+cp /res/scripts/S42disable_bl_dis /data/SemaphoreScripts
+cp /res/scripts/S44enable_semaautobr_default /data/SemaphoreScripts
+# Default addons
+cp /res/scripts/addons/S60disable_cache_50 /data/SemaphoreScripts
+cp /res/scripts/addons/S62disable_ipv6_privacy /data/SemaphoreScripts
+cp /res/scripts/addons/S66enable_color_voodoo_default /data/SemaphoreScripts
+cp /res/scripts/addons/S70enable_vmkern_default /data/SemaphoreScripts
+cp /res/scripts/addons/S74enable_lmk_48mb_default /data/SemaphoreScripts
+cp /res/scripts/addons/S76enable_sdcard_0128kb_default /data/SemaphoreScripts
+cp /res/scripts/addons/S78enable_touchscreen_0_default /data/SemaphoreScripts
+cp /res/scripts/addons/S82disable_net_tweak /data/SemaphoreScripts
+
+#Try sdcard second
+# Default kernel features
+cp /mnt/sdcard/SemaphoreScripts/.scripts/S05enable_oc_1000_default /data/SemaphoreScripts
+cp /mnt/sdcard/SemaphoreScripts/.scripts/S06enable_uv_0_default /data/SemaphoreScripts
+cp /mnt/sdcard/SemaphoreScripts/.scripts/S10enable_gov_ondemand_default /data/SemaphoreScripts
+cp /mnt/sdcard/SemaphoreScripts/.scripts/S15enable_sched_noop_default /data/SemaphoreScripts
+cp /mnt/sdcard/SemaphoreScripts/.scripts/S20disable_netfilter /data/SemaphoreScripts
+cp /mnt/sdcard/SemaphoreScripts/.scripts/S25enable_sm_neutral /data/SemaphoreScripts
+cp /mnt/sdcard/SemaphoreScripts/.scripts/S30disable_logger /data/SemaphoreScripts
+cp /mnt/sdcard/SemaphoreScripts/.scripts/S35disable_tun /data/SemaphoreScripts
+cp /mnt/sdcard/SemaphoreScripts/.scripts/S40disable_cifs /data/SemaphoreScripts
+cp /mnt/sdcard/SemaphoreScripts/.scripts/S42disable_bl_dis /data/SemaphoreScripts
+cp /mnt/sdcard/SemaphoreScripts/.scripts/S44enable_semaautobr_default /data/SemaphoreScripts
+# Default addons
+cp /mnt/sdcard/SemaphoreScripts/.scripts/addons/S60disable_cache_50 /data/SemaphoreScripts
+cp /mnt/sdcard/SemaphoreScripts/.scripts/addons/S62disable_ipv6_privacy /data/SemaphoreScripts
+cp /mnt/sdcard/SemaphoreScripts/.scripts/addons/S66enable_color_voodoo_default /data/SemaphoreScripts
+cp /mnt/sdcard/SemaphoreScripts/.scripts/addons/S70enable_vmkern_default /data/SemaphoreScripts
+cp /mnt/sdcard/SemaphoreScripts/.scripts/addons/S74enable_lmk_48mb_default /data/SemaphoreScripts
+cp /mnt/sdcard/SemaphoreScripts/.scripts/addons/S76enable_sdcard_0128kb_default /data/SemaphoreScripts
+cp /mnt/sdcard/SemaphoreScripts/.scripts/addons/S78enable_touchscreen_0_default /data/SemaphoreScripts
+cp /mnt/sdcard/SemaphoreScripts/.scripts/addons/S82disable_net_tweak /data/SemaphoreScripts
+
+chmod 755 /data/SemaphoreScripts/*
+
+busybox run-parts /data/SemaphoreScripts
+
+rm -f /data/SemaphoreScripts/*disable*
+rm -f /data/SemaphoreScripts/*enable*default*
+rm -f /data/SemaphoreScripts/*enable*neutral*
+rm -f /data/SemaphoreScripts/*enable*standard*
+
+# Clean and configure init.d
+busybox mount -o remount,rw  /system
+
+rm -f /system/etc/init.d/*enable*
+
+cp /data/SemaphoreScripts/* /system/etc/init.d
+
+busybox mount -o remount,ro  /system
+
+rm -rf /data/SemaphoreScripts
+
+# Remove cache image file
+rm -f /data/local/cache.img
