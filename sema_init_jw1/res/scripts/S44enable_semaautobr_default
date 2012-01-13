@@ -1,6 +1,0 @@
-#!/system/bin/sh
-#Semaphore Auto brigthness
-#Brigthness level
-#Disabled
-
-rmmod sema_autobr

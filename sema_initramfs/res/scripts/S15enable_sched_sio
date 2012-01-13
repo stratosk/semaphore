@@ -1,0 +1,18 @@
+#!/system/bin/sh
+#Schedulers
+#Change I/O scheduler
+#Simple I/O
+
+insmod /lib/modules/sio-iosched.ko
+
+STL=`ls -d /sys/block/stl*`;
+BML=`ls -d /sys/block/bml*`;
+MMC=`ls -d /sys/block/mmc*`;
+TFSR=`ls -d /sys/block/tfsr*`;
+
+for i in $STL $BML $MMC $TFSR; do 
+    echo "sio" > "$i"/queue/scheduler;
+done;
+
+sleep 1
+rmmod deadline-iosched

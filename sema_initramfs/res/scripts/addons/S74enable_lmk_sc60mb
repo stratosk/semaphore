@@ -1,0 +1,29 @@
+#!/system/bin/sh
+#Low Memory Killer
+#Minimum free memory
+#60MB(Supercharge)
+
+setprop ro.FOREGROUND_APP_ADJ 0
+setprop ro.VISIBLE_APP_ADJ 1
+setprop ro.PERCEPTIBLE_APP_ADJ 2
+setprop ro.HEAVY_WEIGHT_APP_ADJ 4
+setprop ro.SECONDARY_SERVER_ADJ 5
+setprop ro.BACKUP_APP_ADJ 6
+setprop ro.HOME_APP_ADJ 3
+setprop ro.HIDDEN_APP_MIN_ADJ 7
+setprop ro.CONTENT_PROVIDER_ADJ 14
+setprop ro.EMPTY_APP_ADJ 15
+
+setprop ro.FOREGROUND_APP_MEM 1280
+setprop ro.VISIBLE_APP_MEM 2560
+setprop ro.PERCEPTIBLE_APP_MEM 3840
+setprop ro.HEAVY_WEIGHT_APP_MEM 6400
+setprop ro.SECONDARY_SERVER_MEM 7680
+setprop ro.BACKUP_APP_MEM 8960
+setprop ro.HOME_APP_MEM 5120
+setprop ro.HIDDEN_APP_MEM 11520
+setprop ro.CONTENT_PROVIDER_MEM 12800
+setprop ro.EMPTY_APP_MEM 15360
+
+echo "0,1,3,5,7,15" > /sys/module/lowmemorykiller/parameters/adj
+echo "1280,2560,5120,7680,11520,15360" > /sys/module/lowmemorykiller/parameters/minfree

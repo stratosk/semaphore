@@ -1,0 +1,10 @@
+#!/system/bin/sh
+#Touchscreen
+#Configure touchscreen sensitivity
+#Sensitiver(Mialwe)
+
+echo 7027 > /sys/class/touch/switch/set_touchscreen
+echo 8001 > /sys/class/touch/switch/set_touchscreen
+echo 11001 > /sys/class/touch/switch/set_touchscreen
+echo 13020 > /sys/class/touch/switch/set_touchscreen
+echo 14005 > /sys/class/touch/switch/set_touchscreen

@@ -1,0 +1,15 @@
+#!/system/bin/sh
+#SD-Card read ahead
+#Reduce Overhead on SD-Card read
+#3072kB(Chainfire)
+
+if /sbin/busybox [ -e /sys/devices/virtual/bdi/default/read_ahead_kb ]; then
+    echo "512" > /sys/devices/virtual/bdi/default/read_ahead_kb;
+fi;
+
+echo "3072" > /sys/devices/virtual/bdi/179:0/read_ahead_kb
+echo "3072" > /sys/devices/virtual/bdi/179:8/read_ahead_kb
+
+echo "128" > /sys/devices/virtual/bdi/138:9/read_ahead_kb
+echo "128" > /sys/devices/virtual/bdi/138:10/read_ahead_kb
+echo "128" > /sys/devices/virtual/bdi/138:11/read_ahead_kb
