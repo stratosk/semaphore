@@ -329,7 +329,11 @@ static struct s3cfb_lcd s6e63m0 = {
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_MFC1 (36864 * SZ_1K)
 #endif
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMD (3000 * SZ_1K) //(3000 * SZ_1K)
+#ifdef CONFIG_S5P_BIGMEM
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_JPEG (4096 * SZ_1K) //(5012 * SZ_1K)
+#else
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_JPEG (7000 * SZ_1K) //(5012 * SZ_1K)
+#endif
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_PMEM (2048 * SZ_1K) //(5550 * SZ_1K)
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_GPU1 (3300 * SZ_1K) //(3300 * SZ_1K)
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_ADSP (1500 * SZ_1K) //(1500 * SZ_1K)
@@ -2206,8 +2210,13 @@ static struct s3c_platform_fimc fimc_plat_lsi = {
 
 #ifdef CONFIG_VIDEO_JPEG_V2
 static struct s3c_platform_jpeg jpeg_plat __initdata = {
+#ifdef CONFIG_S5P_BIGMEM
+        .max_main_width = 800,
+        .max_main_height        = 480,
+#else
 	.max_main_width	= 1280,
 	.max_main_height	= 720,
+#endif
 	.max_thumb_width	= 320,
 	.max_thumb_height	= 240,
 };
