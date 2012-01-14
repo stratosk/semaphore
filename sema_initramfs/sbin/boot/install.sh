@@ -1,4 +1,4 @@
-if /sbin/ext/busybox [ ! -f /system/cfroot/release-82-JVU-s1- ]; 
+if /sbin/ext/busybox [ ! -f /system/cfroot/release-82-JVU-s2- ]; 
 then
 # Remount system RW
     /sbin/ext/busybox mount -o remount,rw /system
@@ -35,7 +35,7 @@ then
     toolbox rm /system/xbin/su
     toolbox cat /res/misc/su > /system/xbin/su
     toolbox chown 0.0 /system/xbin/su
-    toolbox chmod 4755 /system/xbin/su
+    toolbox chmod 6755 /system/xbin/su
 
 # Semaphore Script Manager
     toolbox rm /system/app/Semaphore.apk
@@ -51,7 +51,7 @@ then
     toolbox rm /data/cfroot/*
     toolbox rmdir /data/cfroot
     toolbox rm /system/cfroot/*
-    echo 1 > /system/cfroot/release-82-JVU-s1-
+    echo 1 > /system/cfroot/release-82-JVU-s2-
 
 # Remount system RO
     /sbin/ext/busybox mount -o remount,ro /system
