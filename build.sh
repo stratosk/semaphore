@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export KBUILD_BUILD_VERSION="Semaphore_2.6.0b"
+export KBUILD_BUILD_VERSION="Semaphore_2.5.0bm"
 
 #export LOCALVERSION="-I9000XXJVT-CL617736"
 #export LOCALVERSION="-I9000XWJVX-CL716737"
