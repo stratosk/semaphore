@@ -2267,7 +2267,7 @@ int usb_add_hcd(struct usb_hcd *hcd,
 		if ((retval = request_irq(irqnum, &usb_hcd_irq, irqflags,
 				hcd->irq_descr, hcd)) != 0) {
 			dev_err(hcd->self.controller,
-					"request interrupt %d failed\n", irqnum);
+					"request interrupt %d failed, errno %d\n",irqnum,retval);
 			goto err_request_irq;
 		}
 		hcd->irq = irqnum;

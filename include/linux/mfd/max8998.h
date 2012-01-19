@@ -123,4 +123,7 @@ struct max8998_platform_data {
 	int				buck2_set3;
 };
 
+// FOR DIRECT API
+#define LDO_USB         (0x1 << 0)
+
 #endif /*  __LINUX_MFD_MAX8998_H */
