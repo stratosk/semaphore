@@ -120,7 +120,7 @@ PVRSRV_ERROR SysDevicePostPowerState(IMG_UINT32 ui32DeviceIndex,
 									 PVRSRV_DEV_POWER_STATE eCurrentPowerState);
 
 #if defined(SYS_CUSTOM_POWERLOCK_WRAP)
-PVRSRV_ERROR SysPowerLockWrap(SYS_DATA *psSysData);
+PVRSRV_ERROR SysPowerLockWrap(SYS_DATA *psSysData,IMG_BOOL bTryLock);
 IMG_VOID SysPowerLockUnwrap(SYS_DATA *psSysData);
 #endif
 

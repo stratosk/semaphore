@@ -80,7 +80,7 @@ config PVR_SGX_LOW_LATENCY_SCHEDULING
 config PVR_USSE_EDM_STATUS_DEBUG
 	bool "Trace microkernel status"
 	depends on PVR_SGX
-	default y if PVR_BUILD_DEBUG
+	default y
 
 config PVR_DUMP_MK_TRACE
 	bool "Dump microkernel trace on HW recovery"
