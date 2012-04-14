@@ -611,8 +611,10 @@ static netdev_tx_t eth_start_xmit(struct sk_buff *skb,
 	 * though any robust network rx path ignores extra padding.
 	 * and some hardware doesn't like to write zlps.
 	 */
+// [2011.08.24] tethering bug fix 
+	if (dev->zlp)
 	req->zero = 1;
-	if (!dev->zlp && (length % in->maxpacket) == 0)
+	else if (length % in->maxpacket == 0)
 		length++;
 
 	req->length = length;
@@ -634,15 +636,15 @@ static netdev_tx_t eth_start_xmit(struct sk_buff *skb,
 	}
 
 	if (retval) {
-		dev_kfree_skb_any(skb);
-drop:
-		dev->net->stats.tx_dropped++;
 
-
+// prevent bug fix : [2011.08.24] 
 #ifdef CONFIG_USB_GADGET_S3C_OTGD_DMA_MODE
 		if (req->buf != skb->data)
 			kfree(req->buf);
 #endif
+                dev_kfree_skb_any(skb);
+drop:
+		dev->net->stats.tx_dropped++;
 		spin_lock_irqsave(&dev->req_lock, flags);
 		if (list_empty(&dev->tx_reqs))
 			netif_start_queue(net);
@@ -855,9 +857,6 @@ int gether_setup(struct usb_gadget *g, u8 ethaddr[ETH_ALEN])
 		dev_dbg(&g->dev, "register_netdev failed, %d\n", status);
 		free_netdev(net);
 	} else {
-		INFO(dev, "MAC %pM\n", net->dev_addr);
-		INFO(dev, "HOST MAC %pM\n", dev->host_mac);
-
 		the_dev = dev;
 	}
 
