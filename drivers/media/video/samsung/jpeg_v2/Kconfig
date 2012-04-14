@@ -13,3 +13,9 @@ config VIDEO_JPEG_DEBUG
 	bool "print JPEG debug message"
 	depends on VIDEO_JPEG_V2
 	default n
+
+config VIDEO_RECORDING_JPEG_ENC
+	bool "Recording to Jpeg"
+	depends on VIDEO_JPEG_V2
+	---help---
+	  This increase jpeg memory for encoding recording frame to jpeg
