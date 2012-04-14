@@ -227,7 +227,7 @@ static int check_mem_permission(struct task_struct *task)
 	return -EPERM;
 }
 
-struct mm_struct *mm_for_maps(struct task_struct *task)
+static struct mm_struct *mm_access(struct task_struct *task, unsigned int mode)
 {
 	struct mm_struct *mm;
 
@@ -236,7 +236,7 @@ struct mm_struct *mm_for_maps(struct task_struct *task)
 
 	mm = get_task_mm(task);
 	if (mm && mm != current->mm &&
-			!ptrace_may_access(task, PTRACE_MODE_READ) &&
+			!ptrace_may_access(task, mode) &&
 			!capable(CAP_SYS_RESOURCE)) {
 		mmput(mm);
 		mm = NULL;
@@ -244,6 +244,11 @@ struct mm_struct *mm_for_maps(struct task_struct *task)
 	mutex_unlock(&task->cred_guard_mutex);
 
 	return mm;
+}
+
+struct mm_struct *mm_for_maps(struct task_struct *task)
+{
+    return mm_access(task, PTRACE_MODE_READ);
 }
 
 static int proc_pid_cmdline(struct task_struct *task, char * buffer)
@@ -769,74 +774,82 @@ static const struct file_operations proc_single_file_operations = {
 
 static int mem_open(struct inode* inode, struct file* file)
 {
-	file->private_data = (void*)((long)current->self_exec_id);
+	struct task_struct *task = get_proc_task(file->f_path.dentry->d_inode);
+       struct mm_struct *mm;
+       if (!task)
+           return -ESRCH;
+       mm = mm_access(task, PTRACE_MODE_ATTACH);
+       put_task_struct(task);
+       if (IS_ERR(mm))
+           return PTR_ERR(mm);
+       file->private_data = mm;
 	return 0;
 }
 
 static ssize_t mem_read(struct file * file, char __user * buf,
-			size_t count, loff_t *ppos)
+                        size_t count, loff_t *ppos)
 {
-	struct task_struct *task = get_proc_task(file->f_path.dentry->d_inode);
-	char *page;
-	unsigned long src = *ppos;
-	int ret = -ESRCH;
-	struct mm_struct *mm;
+        struct task_struct *task = get_proc_task(file->f_path.dentry->d_inode);
+        char *page;
+        unsigned long src = *ppos;
+        int ret = -ESRCH;
+        struct mm_struct *mm;
 
-	if (!task)
-		goto out_no_task;
+        if (!task)
+                goto out_no_task;
 
-	if (check_mem_permission(task))
-		goto out;
+        if (check_mem_permission(task))
+                goto out;
 
-	ret = -ENOMEM;
-	page = (char *)__get_free_page(GFP_TEMPORARY);
-	if (!page)
-		goto out;
+        ret = -ENOMEM;
+        page = (char *)__get_free_page(GFP_TEMPORARY);
+        if (!page)
+                goto out;
 
-	ret = 0;
- 
-	mm = get_task_mm(task);
-	if (!mm)
-		goto out_free;
+        ret = 0;
 
-	ret = -EIO;
- 
-	if (file->private_data != (void*)((long)current->self_exec_id))
-		goto out_put;
+        mm = get_task_mm(task);
+        if (!mm)
+                goto out_free;
 
-	ret = 0;
- 
-	while (count > 0) {
-		int this_len, retval;
+        ret = -EIO;
 
-		this_len = (count > PAGE_SIZE) ? PAGE_SIZE : count;
-		retval = access_process_vm(task, src, page, this_len, 0);
-		if (!retval || check_mem_permission(task)) {
-			if (!ret)
-				ret = -EIO;
-			break;
-		}
+        if (file->private_data != (void*)((long)current->self_exec_id))
+                goto out_put;
 
-		if (copy_to_user(buf, page, retval)) {
-			ret = -EFAULT;
-			break;
-		}
- 
-		ret += retval;
-		src += retval;
-		buf += retval;
-		count -= retval;
-	}
-	*ppos = src;
+        ret = 0;
+
+        while (count > 0) {
+                int this_len, retval;
+
+                this_len = (count > PAGE_SIZE) ? PAGE_SIZE : count;
+                retval = access_process_vm(task, src, page, this_len, 0);
+                if (!retval || check_mem_permission(task)) {
+                        if (!ret)
+                                ret = -EIO;
+                        break;
+                }
+
+                if (copy_to_user(buf, page, retval)) {
+                        ret = -EFAULT;
+                        break;
+                }
+
+                ret += retval;
+                src += retval;
+                buf += retval;
+                count -= retval;
+        }
+        *ppos = src;
 
 out_put:
-	mmput(mm);
+        mmput(mm);
 out_free:
-	free_page((unsigned long) page);
+        free_page((unsigned long) page);
 out:
-	put_task_struct(task);
+        put_task_struct(task);
 out_no_task:
-	return ret;
+        return ret;
 }
 
 #define mem_write NULL
@@ -844,51 +857,51 @@ out_no_task:
 #ifndef mem_write
 /* This is a security hazard */
 static ssize_t mem_write(struct file * file, const char __user *buf,
-			 size_t count, loff_t *ppos)
+                         size_t count, loff_t *ppos)
 {
-	int copied;
-	char *page;
-	struct task_struct *task = get_proc_task(file->f_path.dentry->d_inode);
-	unsigned long dst = *ppos;
+        int copied;
+        char *page;
+        struct task_struct *task = get_proc_task(file->f_path.dentry->d_inode);
+        unsigned long dst = *ppos;
 
-	copied = -ESRCH;
-	if (!task)
-		goto out_no_task;
+        copied = -ESRCH;
+        if (!task)
+                goto out_no_task;
 
-	if (check_mem_permission(task))
-		goto out;
+        if (check_mem_permission(task))
+                goto out;
 
-	copied = -ENOMEM;
-	page = (char *)__get_free_page(GFP_TEMPORARY);
-	if (!page)
-		goto out;
+        copied = -ENOMEM;
+        page = (char *)__get_free_page(GFP_TEMPORARY);
+        if (!page)
+                goto out;
 
-	copied = 0;
-	while (count > 0) {
-		int this_len, retval;
+        copied = 0;
+        while (count > 0) {
+                int this_len, retval;
 
-		this_len = (count > PAGE_SIZE) ? PAGE_SIZE : count;
-		if (copy_from_user(page, buf, this_len)) {
-			copied = -EFAULT;
-			break;
-		}
-		retval = access_process_vm(task, dst, page, this_len, 1);
-		if (!retval) {
-			if (!copied)
-				copied = -EIO;
-			break;
-		}
-		copied += retval;
-		buf += retval;
-		dst += retval;
-		count -= retval;			
-	}
-	*ppos = dst;
-	free_page((unsigned long) page);
+                this_len = (count > PAGE_SIZE) ? PAGE_SIZE : count;
+                if (copy_from_user(page, buf, this_len)) {
+                        copied = -EFAULT;
+                        break;
+                }
+                retval = access_process_vm(task, dst, page, this_len, 1);
+                if (!retval) {
+                        if (!copied)
+                                copied = -EIO;
+                        break;
+                }
+                copied += retval;
+                buf += retval;
+                dst += retval;
+                count -= retval;
+        }
+        *ppos = dst;
+        free_page((unsigned long) page);
 out:
-	put_task_struct(task);
+        put_task_struct(task);
 out_no_task:
-	return copied;
+        return copied;
 }
 #endif
 
@@ -908,11 +921,20 @@ loff_t mem_lseek(struct file *file, loff_t offset, int orig)
 	return file->f_pos;
 }
 
+static int mem_release(struct inode *inode, struct file *file)
+{
+    struct mm_struct *mm = file->private_data;
+
+    mmput(mm);
+    return 0;
+}
+
 static const struct file_operations proc_mem_operations = {
 	.llseek		= mem_lseek,
 	.read		= mem_read,
 	.write		= mem_write,
 	.open		= mem_open,
+	.release         = mem_release,
 };
 
 static ssize_t environ_read(struct file *file, char __user *buf,
