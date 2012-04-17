@@ -2884,11 +2884,13 @@ wl_iw_set_wap(
 	}
 #endif
 
+/*
 	if (g_ssid.SSID_len) {
 		WL_ASSOC(("%s: join SSID=%s BSSID="MACSTR" ch=%d\n", __FUNCTION__,  \
 			g_ssid.SSID, MAC2STR((u8 *)awrq->sa_data), \
 			g_wl_iw_params.target_channel));
 	}
+*/
 	
 	
 	memset(&g_ssid, 0, sizeof(g_ssid));
@@ -4685,7 +4687,7 @@ normal:
 		if ((error = dev_wlc_ioctl(dev, WLC_SET_SSID, &g_ssid, sizeof(g_ssid))))
 			return error;
 	}
-	WL_TRACE(("%s: join SSID=%s\n", __FUNCTION__,  g_ssid.SSID));
+//	WL_TRACE(("%s: join SSID=%s\n", __FUNCTION__,  g_ssid.SSID));
 
 	return 0;
 }
@@ -4740,10 +4742,12 @@ wl_iw_set_essid(
 		return error;
 	}
 
+/*
 	if (g_ssid.SSID_len) {
 		WL_TRACE(("%s: join SSID=%s ch=%d\n", __FUNCTION__, \
 			g_ssid.SSID,  g_wl_iw_params.target_channel));
 	}
+*/
 	return 0;
 }
 #endif /* AUTH_TIME_PATCH */

@@ -36,6 +36,8 @@
 #include <plat/regs-fb.h>
 #include <plat/pm.h>
 
+extern void cpufreq_stats_reset(void);
+
 static struct clk *mpu_clk;
 static struct regulator *arm_regulator;
 static struct regulator *internal_regulator;
@@ -199,6 +201,8 @@ static ssize_t oc_show(struct device *dev, struct device_attribute *attr, char *
 static ssize_t oc_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
 {
 	unsigned short state;
+	struct cpufreq_policy * policy = cpufreq_cpu_get(0);
+	
 	if (sscanf(buf, "%hu", &state) == 1)
 	{
 	  	oc = state;
@@ -212,7 +216,11 @@ static ssize_t oc_store(struct device *dev, struct device_attribute *attr, const
 			s5pv210_change_high_1300();
 		}
 	}
- 	return size;
+
+	cpufreq_frequency_table_cpuinfo(policy, freq_table);
+	cpufreq_stats_reset();
+	
+	return size;
 }
  
 static DEVICE_ATTR(oc, S_IRUGO | S_IWUGO , oc_show, oc_store);
