@@ -319,6 +319,7 @@ static struct s3cfb_lcd s6e63m0 = {
 #else
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC0 (8688 * SZ_1K)
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC1 (6144 * SZ_1K)
+//#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC1 (9900 * SZ_1K)
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC2 (8688 * SZ_1K)
 #endif
 #if !defined(CONFIG_ARIES_NTT)   
@@ -333,6 +334,7 @@ static struct s3cfb_lcd s6e63m0 = {
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_JPEG (14100 * SZ_1K)
 #else
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_JPEG (4092 * SZ_1K)
+//#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_JPEG (5012 * SZ_1K)
 #endif
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_PMEM (675 * SZ_1K)
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_GPU1 (3300 * SZ_1K)
@@ -2201,12 +2203,12 @@ static struct s3c_platform_fimc fimc_plat_lsi = {
 
 #ifdef CONFIG_VIDEO_JPEG_V2
 static struct s3c_platform_jpeg jpeg_plat __initdata = {
-#ifdef CONFIG_S5P_BIGMEM
-        .max_main_width = 800,
-        .max_main_height        = 480,
+#ifdef CONFIG_VIDEO_RECORDING_JPEG_ENC
+	.max_main_width		= 1280,
+	.max_main_height	= 960,
 #else
-	.max_main_width	= 1280,
-	.max_main_height	= 720,
+	.max_main_width		= 800,
+	.max_main_height	= 480,
 #endif
 	.max_thumb_width	= 320,
 	.max_thumb_height	= 240,
